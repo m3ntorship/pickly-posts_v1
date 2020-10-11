@@ -1,15 +1,9 @@
-const axios = require("axios");
 const appError = require("../util/appError");
 const activeEmailsModel = require("../models/activeEmailsModel");
+const {verifyIdToken} = require('../util/verifyIdToken');
 
-const verifyIdToken = (idToken) =>
-  axios("https://oauth2.googleapis.com/tokeninfo?id_token", {
-    params: {
-      id_token: idToken,
-    },
-  });
 
-module.exports = async (req, res, next) => {
+module.exports = (req, res, next) => {
   let {
     headers: { authorization },
   } = req;
@@ -17,8 +11,8 @@ module.exports = async (req, res, next) => {
   if (authorization) {
     let [, token] = authorization.split(/bearer /i);
     verifyIdToken(token)
-      .then(({ data }) => {
-        return activeEmailsModel.findOne({ email: data.email });
+      .then((tokeninfo) => {
+        return activeEmailsModel.findOne({ email: tokeninfo.email });
       })
 
       .then((isActive) => {
@@ -28,7 +22,7 @@ module.exports = async (req, res, next) => {
           return next(new Error(403));
         }
       })
-      .catch(() => {
+      .catch((error) => {
         next(new appError("unauthorized", 401));
       });
   } else {
