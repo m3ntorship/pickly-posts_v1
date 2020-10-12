@@ -5,18 +5,13 @@ const authController = require('../controllers/authController');
 const router = express.Router();
 
 router
-	.route('/')
-	.post(
-		postController.uploadImages,
-		postController.createPost
-	);
+  .route('/')
+  .post(postController.uploadImages, postController.createPost)
+  .get(postController.getAllPosts);
 
 router
-	.route('/:id')
-	.get(postController.getPost)
-	.patch(
-		postController.uploadImages,
-		postController.updatePost
-	);
+  .route('/:id')
+  .get(postController.getPost)
+  .patch(postController.uploadImages, postController.updatePost);
 
 module.exports = router;
