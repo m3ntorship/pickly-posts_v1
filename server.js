@@ -1,19 +1,11 @@
 const express = require('express');
 const connect = require('./lib/db');
 const postRouter = require('./routes/postRoutes');
-<<<<<<< HEAD
+const imageRouter = require('./routes/imageRoutes');
 const {protector} = require("./controllers/authController");
 const errorHandler = require("./middleware/errorhandler");
 const cors = require('cors')
 const dotenv = require("dotenv");
-=======
-const imageRouter = require('./routes/imageRoutes');
-
-const protector = require('./controllers/authController');
-const errorHandler = require('./middleware/errorhandler');
-const cors = require('cors');
-const dotenv = require('dotenv');
->>>>>>> 21a37662bc01c416a43318f516bb55ec7215905a
 dotenv.config();
 dotenv.config({ path: './.env' });
 
