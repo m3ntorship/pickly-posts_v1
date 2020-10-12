@@ -4,7 +4,7 @@ const { verifyIdToken } = require("../util/verifyIdToken");
 
 module.exports.protector = (req, res, next) => {
   let {
-    headers: { authorization },
+    headers: { authorization }
   } = req;
 
   if (authorization) {
@@ -14,11 +14,11 @@ module.exports.protector = (req, res, next) => {
         req.user = tokeninfo;
         next();
       })
-      .catch((error) => {
-        next(new appError("unauthorized", 401));
+      .catch(error => {
+        next(new appError('unauthorized', 401));
       });
   } else {
-    next(new appError("unauthorized", 401));
+    next(new appError('unauthorized', 401));
   }
 };
 

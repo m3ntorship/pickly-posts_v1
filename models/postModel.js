@@ -5,9 +5,9 @@ const postSchema = new mongoose.Schema(
       type: String,
       required: true
     },
-    images: {
+    resources: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'images',
+      ref: 'resources',
       required: true
     },
     isAnonymous: {
