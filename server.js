@@ -3,13 +3,33 @@ const connect = require("./lib/db");
 const postRouter = require('./routes/postRoutes');
 const protector = require("./controllers/authController");
 const errorHandler = require("./middleware/errorhandler");
-const cors = require('cors')
+const cors = require('cors');
+const swaggerJsdoc = require("swagger-jsdoc");
+const swaggerUI = require('swagger-ui-express');
 const dotenv = require("dotenv");
 dotenv.config();
 dotenv.config({ path: "./.env" });
 
+
 const app = express();
 app.use(cors(), express.json());
+
+const swaggerOptions = {
+  swagerDefinition: {
+    info: {
+      title: 'Pickly API',
+      description: 'Pickly API documentation',
+      contact: {
+        name: 'm3ntorship.com'
+      },
+      servers: ["https://pickly.io"],
+    }
+  },
+  apis: ['server.js', './routes/*.js']
+};
+
+swaggerDocs = swaggerJsdoc(swaggerOptions);
+app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerDocs));
 
 
 app.get("/health", (req, res) => {
