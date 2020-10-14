@@ -9,16 +9,19 @@ const multerStorage = multer.memoryStorage();
 
 const acceptedMimeTypes = ['image/png', 'image/jpg', 'image/jpeg'];
 const multerFilter = (req, file, cb) => {
-  if (acceptedMimeTypes.includes(file.mimetype)) {
-    cb(null, true);
-  } else {
-    cb(new AppError('Not an image! Please upload only images.', 400), false);
-  }
+	if (acceptedMimeTypes.includes(file.mimetype)) {
+		cb(null, true);
+	} else {
+		cb(
+			new AppError('Not an image! Please upload only images.', 400),
+			false
+		);
+	}
 };
 
 const upload = multer({
-  storage: cloudinaryStorage,
-  fileFilter: multerFilter
+	storage: cloudinaryStorage,
+	fileFilter: multerFilter,
 });
 
 exports.uploadImages = upload.fields([{ name: 'images', maxCount: 2 }]);
@@ -26,4 +29,7 @@ exports.uploadImages = upload.fields([{ name: 'images', maxCount: 2 }]);
 exports.getPost = factory.getOne(Post, 'resources');
 exports.createPost = factory.createOne(Post);
 exports.updatePost = factory.updateOne(Post);
-exports.getAllPosts = factory.getAll(Post);
+exports.getAllPosts = factory.getAll(Post, {
+	getRecentFirst: true,
+	populateResources: true,
+});
