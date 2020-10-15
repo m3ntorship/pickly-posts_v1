@@ -7,12 +7,12 @@ const router = express.Router();
 router
 	.route('/')
 	.post(
-		activeUsersOnly,
+		// activeUsersOnly,
 		postController.uploadImages,
 		postController.createPost
 	)
 	.get(
-		activeUsersOnly,
+		// activeUsersOnly,
 		postController.getAllPosts
 	);
 
