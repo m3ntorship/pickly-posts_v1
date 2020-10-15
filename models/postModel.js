@@ -19,14 +19,7 @@ const postSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-reviewSchema.pre(/^find/, function(next) {
-  // this.populate({
-  //   path: 'tour',
-  //   select: 'name'
-  // }).populate({
-  //   path: 'user',
-  //   select: 'name photo'
-  // });
+postSchema.pre(/^find/, function(next) {
 
   if (!isAnonymous){
     this.populate({

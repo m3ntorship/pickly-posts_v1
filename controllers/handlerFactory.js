@@ -19,10 +19,11 @@ exports.createOne = Model =>
     const image = await Image.create(images);
     const resources = await Resources.create({ images: image });
     const caption = req.body.caption;
-    const anounymous = req.body.isAnonymous;
+    const anonymous = req.body.isAnonymous;
 
     const doc = await Model.create({
       caption,
+      anonymous,
       resources: resources._id,
       author: user._id
     });
