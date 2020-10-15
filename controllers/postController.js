@@ -32,4 +32,5 @@ exports.updatePost = factory.updateOne(Post);
 exports.getAllPosts = factory.getAll(Post, {
 	getRecentFirst: true,
 	populateResources: true,
+	populateAuthor: true
 });

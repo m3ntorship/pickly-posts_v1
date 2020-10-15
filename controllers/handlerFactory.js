@@ -85,6 +85,9 @@ exports.getAll = (Model, options) =>
 		if (options.populateResources) {
 			data.populate('resources');
 		}
+		if (options.populateAuthor) {
+			data.populate('author');
+		}
 		data = await data;
 		if (!data) {
 			return next(new AppError('No Polls found with that ID', 404));
