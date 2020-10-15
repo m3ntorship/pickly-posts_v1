@@ -29,8 +29,9 @@ exports.uploadImages = upload.fields([{ name: 'images', maxCount: 2 }]);
 exports.getPost = factory.getOne(Post, 'resources');
 exports.createPost = factory.createOne(Post);
 exports.updatePost = factory.updateOne(Post);
+exports.deletePost = factory.deleteOne(Post);
 exports.getAllPosts = factory.getAll(Post, {
 	getRecentFirst: true,
 	populateResources: true,
-	populateAuthor: true
+	populateAuthor: true,
 });

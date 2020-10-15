@@ -4,6 +4,7 @@ const { Image } = require('../models/imageModel');
 const { Resources } = require('../models/imageModel');
 const User = require('../models/userMode');
 const Post = require('../models/postModel');
+const { Model } = require('mongoose');
 exports.createOne = (Model) =>
 	catchAsync(async (req, res, next) => {
 		if (!req.files.images) {
@@ -74,6 +75,15 @@ exports.updateOne = (Model) =>
 				data: doc,
 			},
 		});
+	});
+
+exports.deleteOne = (Model) =>
+	catchAsync(async (req, res, next) => {
+		const docId = req.params.id;
+		const doc = await Model.deleteOne({ _id: docId });
+		console.log(doc);
+		if (doc) res.status(204).send();
+		return next(new AppError('cannot find doc with that id', 404));
 	});
 
 exports.getAll = (Model, options) =>
