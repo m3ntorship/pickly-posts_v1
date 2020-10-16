@@ -19,17 +19,5 @@ const postSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-postSchema.pre(/^find/, function(next) {
-
-  if (!isAnonymous){
-    this.populate({
-      path: 'author',
-      select: 'name avatar'
-    });
-    next();
-  }
-  
-});
-
 const Post = mongoose.model('Post', postSchema);
 module.exports = Post;
