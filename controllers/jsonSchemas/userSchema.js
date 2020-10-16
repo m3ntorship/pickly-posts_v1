@@ -1,19 +1,26 @@
-const Ajv = require('ajv');
-
-const ajv = new Ajv();
-
 const schema = {
 	type: 'object',
-	$id: 'user',
+	$id: 'http://pickly.io/schemas/user',
 	properties: {
 		name: { type: 'string' },
 		email: { type: 'string' },
 		password: { type: 'string' },
 		avatar: { type: 'string' },
 		posts: {
-			type: 'object',
-			ref: '',
+			type: 'array',
+			items: {
+				type: ['object', 'string'],
+			},
 		},
 	},
-	required: ['name', 'email', 'password', 'avatar'],
+	required: ['name', 'email'],
+	// To accout for populated and unpopulated (referencing only)
+	allOf: [
+		{
+			if: { properties: { posts: { items: { type: 'object' } } } },
+			then: { properties: { posts: { items: { $ref: './post' } } } },
+		},
+	],
 };
+
+module.exports = schema;
