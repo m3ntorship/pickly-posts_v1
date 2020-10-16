@@ -5,7 +5,6 @@ const userSchema = new mongoose.Schema({
   password: String,
   avatar: String,
   posts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Post' }],
-  googleId: String
 });
 
 const User = mongoose.model('user', userSchema);
