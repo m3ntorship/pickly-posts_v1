@@ -11,7 +11,7 @@ const postSchema = new mongoose.Schema(
       required: true
     },
     isAnonymous: {
-      type: Boolean,
+      type: String,
       required: true,
     },
     author: { type: mongoose.Schema.Types.ObjectId, ref: 'user' }

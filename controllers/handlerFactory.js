@@ -49,7 +49,7 @@ exports.getOne = (Model, popOptions) =>
     if (popOptions) {
       query = query.populate(popOptions)
     }
-    if (!anounymous) {
+    if (anounymous === 'false') {
       query = query.populate('author').exec();
     }
       
