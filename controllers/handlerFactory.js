@@ -52,7 +52,8 @@ exports.getOne = (Model, popOptions) =>
     if (anounymous === 'false') {
       query = query.populate('author').exec();
     }
-      
+    if (popOptions)
+      query = query.populate(popOptions).populate('author').exec();
     const doc = await query;
 
     if (!doc) {

@@ -10,14 +10,11 @@ const dotenv = require("dotenv");
 dotenv.config();
 dotenv.config({ path: './.env' });
 
-
 const app = express();
 app.use(cors(), express.json());
 
 
-
-
-app.get("/health", (req, res) => {
+app.get('/health', (req, res) => {
   res.json({ ok: true });
 });
 
