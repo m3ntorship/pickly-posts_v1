@@ -7,7 +7,7 @@ const errorHandler = require("./middleware/errorhandler");
 const cors = require('cors')
 const dotenv = require("dotenv");
 dotenv.config();
-dotenv.config({ path: './.env' });
+dotenv.config({ path: './secrets/.env' });
 
 const app = express();
 app.use(cors(), express.json());
@@ -29,7 +29,7 @@ app.use('/images', imageRouter);
 app.use(errorHandler);
 
 const dbUrl =
-  process.env.DB_URI || 'mongodb://localhost:27017/multer-m3ntorship';
+  process.env.DB_URI || 'mongodb://localhost:27017/pickly-dev';
 
 const port = 3001;
 connect(dbUrl)

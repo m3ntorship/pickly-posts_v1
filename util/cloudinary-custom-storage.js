@@ -1,4 +1,3 @@
-const multer = require("multer");
 const cloudinary = require("cloudinary").v2;
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
 require("dotenv").config();
@@ -13,7 +12,7 @@ cloudinary.config({
 const cloudinaryStorage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
-    folder: "some-folder-name",
+    folder: process.env.API_FOLDER_NAME || 'temp',
     format: async (req, file) => file.originalname.split(".")[1],
     public_id: (req, file) => file.public_id,
   },
