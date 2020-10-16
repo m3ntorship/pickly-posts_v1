@@ -11,7 +11,7 @@ const schema = {
 			type: ['object', 'string'],
 		},
 	},
-	required: ['caption', 'isAnonymous', 'resources', 'author'],
+	required: ['caption', 'resources'],
 	// To accout for populated and unpopulated (referencing only)
 	allOf: [
 		{
