@@ -3,7 +3,6 @@ const userSchema = require('./userSchema');
 const postSchema = require('./postSchema');
 const imageSchema = require('./imageSchema');
 const resourceSchema = require('./resourceSchema');
-const { validate } = require('uuid');
 
 const ajv = new Ajv({
 	schemas: [userSchema, postSchema, imageSchema, resourceSchema],
