@@ -4,6 +4,7 @@ const ajv = new Ajv();
 
 const schema = {
 	type: 'object',
+	$id: 'post',
 	properties: {
 		caption: { type: 'string' },
 		isAnonymous: { type: 'boolean' },

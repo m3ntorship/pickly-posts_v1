@@ -4,6 +4,7 @@ const ajv = new Ajv();
 
 const schema = {
 	type: 'object',
+	$id: 'image',
 	properties: {
 		name: { type: 'string' },
 		url: { type: 'string' },
