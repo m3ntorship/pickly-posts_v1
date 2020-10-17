@@ -17,10 +17,8 @@ exports.createOne = Model =>
       };
     });
     const image = await Image.create(images);
-    const resources = await Resources.create({});
-    image.forEach(image => resources.images.push(image._id));
-
-    await resources.save();
+    const imagesIds = image.map(image => image._id);
+    const resources = await Resources.create({ images: imagesIds });
     const caption = req.body.caption;
 
     const user = await User.create({ name: 'asdadasd', email: 'asdasd' });
