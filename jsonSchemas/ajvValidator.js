@@ -5,13 +5,21 @@ const imageSchema = require('./imageSchema');
 const resourceSchema = require('./resourceSchema');
 
 const ajv = new Ajv({
-	schemas: [userSchema, postSchema, imageSchema, resourceSchema],
+	schemas: [
+		userSchema,
+		postSchema.outputSchema,
+		postSchema.inputSchema,
+		imageSchema,
+		resourceSchema,
+	],
 });
 
 exports.validateUser = ajv.compile(userSchema);
-exports.validatePost = ajv.compile(postSchema);
+exports.validatePost = ajv.compile(postSchema.outputSchema);
 exports.validateImage = ajv.compile(imageSchema);
 exports.validateResource = ajv.compile(resourceSchema);
+
+exports.validatePostInput = ajv.compile(postSchema.inputSchema);
 
 // For testing purposes
 // const post = {
