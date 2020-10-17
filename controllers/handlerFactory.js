@@ -17,7 +17,10 @@ exports.createOne = Model =>
       };
     });
     const image = await Image.create(images);
-    const resources = await Resources.create({ images: image });
+    const resources = await Resources.create({});
+    image.forEach(image => resources.images.push(image._id));
+
+    await resources.save();
     const caption = req.body.caption;
 
     const user = await User.create({ name: 'asdadasd', email: 'asdasd' });
@@ -34,7 +37,6 @@ exports.createOne = Model =>
         },
         { new: true }
       ).exec();
-      console.log(image);
     });
     res.status(201).json({
       status: 'success',
@@ -46,7 +48,17 @@ exports.getOne = (Model, popOptions) =>
   catchAsync(async (req, res, next) => {
     let query = Model.findById(req.params.id);
     if (popOptions)
-      query = query.populate(popOptions).populate('author').exec();
+      query = query
+        .populate({
+          path: popOptions,
+          model: 'resources',
+          populate: {
+            path: 'images',
+            model: 'image'
+          }
+        })
+        .populate('author')
+        .exec();
     const doc = await query;
 
     if (!doc) {
