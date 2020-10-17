@@ -13,7 +13,7 @@ const schema = {
 			},
 		},
 	},
-	required: ['name', 'email'],
+	required: ['name', 'email', 'posts'],
 	// To accout for populated and unpopulated (referencing only)
 	allOf: [
 		{

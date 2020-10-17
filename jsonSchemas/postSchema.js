@@ -11,7 +11,7 @@ const outputSchema = {
 			type: ['object', 'string'],
 		},
 	},
-	required: ['caption', 'resources'],
+	required: ['caption', 'resources', 'isAnonymous', 'resources', 'author'],
 	// To accout for populated and unpopulated (referencing only)
 	allOf: [
 		{

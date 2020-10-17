@@ -9,6 +9,8 @@ const schema = {
 			},
 		},
 	},
+	required: ['images'],
+
 	// To accout for populated and unpopulated (referencing only)
 	allOf: [
 		{

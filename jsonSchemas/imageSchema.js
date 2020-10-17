@@ -16,6 +16,8 @@ const schema = {
 			},
 		},
 	},
+	required: ['name', 'url', 'provider', 'voutesCount', 'linkedPost', 'votes'],
+
 	// To accout for populated and unpopulated (referencing only)
 	allOf: [
 		{
