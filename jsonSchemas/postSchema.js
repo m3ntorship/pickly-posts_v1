@@ -11,7 +11,7 @@ const outputSchema = {
 			type: ['object', 'string'],
 		},
 	},
-	required: ['caption', 'resources', 'isAnonymous', 'resources', 'author'],
+	required: ['caption', 'resources', 'isAnonymous', 'author'],
 	// To accout for populated and unpopulated (referencing only)
 	allOf: [
 		{
@@ -45,10 +45,10 @@ const inputSchema = {
 				},
 			},
 		},
-		required: ['caption', 'isAnonymous', 'images'],
-		maxProperties: 3,
-		minProperties: 3,
 	},
+	required: ['caption', 'isAnonymous', 'images'],
+	maxProperties: 3,
+	minProperties: 3,
 };
 
 module.exports = { outputSchema, inputSchema };

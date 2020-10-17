@@ -24,11 +24,14 @@ app.get('/protected', (req, res) => {
 	res.json({ protected: true });
 });
 
-// app.use((req, res, next) => {
-// 	validate.validatePost({
+//Input Validation
+// app.use('/posts', (req, res, next) => {
+// 	validate.validatePostInput({
 // 		caption: req.body.caption,
+// 		isAnonymous: req.body.isAnonymous,
 // 		resourses: { images: req.files.images },
 // 	});
+// 	next();
 // });
 
 app.use('/posts', postRouter);
