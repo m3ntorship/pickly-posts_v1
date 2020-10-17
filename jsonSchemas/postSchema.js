@@ -1,4 +1,4 @@
-const schema = {
+const outputSchema = {
 	type: 'object',
 	$id: 'http://pickly.io/schemas/post',
 	properties: {
@@ -25,4 +25,30 @@ const schema = {
 	],
 };
 
-module.exports = schema;
+const inputSchema = {
+	type: 'object',
+	$id: 'http://pickly.io/schemas/addpost',
+	properties: {
+		caption: { type: 'string' },
+		isAnonymous: { type: 'boolean' },
+		images: {
+			type: 'array',
+			items: {
+				type: 'object',
+				properties: {
+					name: {
+						type: 'string',
+					},
+					url: {
+						type: 'string',
+					},
+				},
+			},
+		},
+		required: ['caption', 'isAnonymous', 'images'],
+		maxProperties: 3,
+		minProperties: 3,
+	},
+};
+
+module.exports = { outputSchema, inputSchema };
