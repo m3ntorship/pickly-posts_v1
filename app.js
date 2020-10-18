@@ -1,12 +1,13 @@
-const express = require('express');
-const cors = require('cors');
 const dotenv = require('dotenv');
+const express = require('express');
+const {resolve} = require('path')
+const cors = require('cors');
 const postRouter = require('./routes/postRoutes');
 const imageRouter = require('./routes/imageRoutes');
 const { protector } = require('./controllers/authController');
 const errorHandler = require('./middleware/errorhandler');
 
-dotenv.config();
+dotenv.config({path: resolve('secrets', '.env')});
 
 const app = express();
 
