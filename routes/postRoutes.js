@@ -1,19 +1,18 @@
-const express = require("express");
-const postController = require("../controllers/postController");
-const { activeUsersOnly } = require("../controllers/authController");
+const express = require('express');
+const postController = require('../controllers/postController');
 
 const router = express.Router();
 
 router
-  .route("/")
-  .post(
-    // activeUsersOnly,
-    postController.uploadImages,
-    postController.createPost
-  );
+	.route('/')
+	.post(
+		postController.uploadImages,
+		postController.createPost
+	)
+	.get(
+		postController.getAllPosts
+	);
 
-router
-  .route("/:id")
-  .get(postController.getPost);
+router.route('/:id').get(postController.getPost).delete(postController.deletePost);
 
 module.exports = router;

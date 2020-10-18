@@ -4,6 +4,8 @@ const { Image } = require('../models/imageModel');
 const { Resources } = require('../models/imageModel');
 const User = require('../models/userMode');
 const Post = require('../models/postModel');
+const { Model } = require('mongoose');
+const isTruthy = require('../util/isTruthy');
 exports.createOne = (Model) =>
 	catchAsync(async (req, res, next) => {
 		if (!req.files.images) {
@@ -18,15 +20,14 @@ exports.createOne = (Model) =>
 		});
 		const image = await Image.create(images);
 		const resources = await Resources.create({ images: image });
-		const caption = req.body.caption;
-		const isAnonymous = req.body.isAnonymous;
-
+		const {isAnonymous, caption} = req.body;
+		const isAnonymousBoolean = isTruthy(isAnonymous)
 		const user = await User.create({ name: 'asdadasd', email: 'asdasd' });
 		const doc = await Model.create({
 			caption,
-			isAnonymous,
 			resources: resources._id,
 			author: user._id,
+			isAnonymous: isAnonymousBoolean
 		});
 		resources['images'].forEach(async (img) => {
 			const image = await Image.findByIdAndUpdate(
@@ -36,7 +37,6 @@ exports.createOne = (Model) =>
 				},
 				{ new: true }
 			).exec();
-			console.log(image);
 		});
 		res.status(201).json({
 			status: 'success',
@@ -71,7 +71,6 @@ exports.updateOne = (Model) =>
 		if (!doc) {
 			return next(new AppError('No document found with that ID', 404));
 		}
-
 		res.status(200).json({
 			status: 'success',
 			data: {
@@ -80,9 +79,28 @@ exports.updateOne = (Model) =>
 		});
 	});
 
-exports.getAll = (Model) =>
+exports.deleteOne = (Model) =>
 	catchAsync(async (req, res, next) => {
-		const data = await Post.find().exec();
+		const docId = req.params.id;
+		const doc = await Model.deleteOne({ _id: docId });
+		console.log(doc);
+		if (doc) res.status(204).send();
+		return next(new AppError('cannot find doc with that id', 404));
+	});
+
+exports.getAll = (Model, options) =>
+	catchAsync(async (req, res, next) => {
+		let data = Post.find();
+		if (options.getRecentFirst) {
+			data.sort('-createdAt');
+		}
+		if (options.populateResources) {
+			data.populate('resources');
+		}
+		if (options.populateAuthor) {
+			data.populate('author');
+		}
+		data = await data;
 		if (!data) {
 			return next(new AppError('No Polls found with that ID', 404));
 		} else {

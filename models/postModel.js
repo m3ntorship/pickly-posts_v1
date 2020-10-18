@@ -21,7 +21,7 @@ const postSchema = new mongoose.Schema(
 	{
 		toJSON: {
 			transform(doc, ret) {
-				if (isTruthy(ret.isAnonymous)) ret.author = undefined;
+				if (ret.isAnonymous) ret.author = undefined;
 			},
 		},
 		timestamps: true,
