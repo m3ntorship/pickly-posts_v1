@@ -18,7 +18,7 @@ app.get('/health', (req, res) => {
 });
 
 // protect all routes
-// app.use(protector);
+app.use(protector);
 
 app.get('/protected', (req, res) => {
   res.json({ protected: true });

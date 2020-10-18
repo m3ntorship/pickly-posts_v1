@@ -20,14 +20,15 @@ exports.createOne = (Model) =>
 		});
 		const image = await Image.create(images);
 		const resources = await Resources.create({ images: image });
-		const {isAnonymous, caption} = req.body;
-		const isAnonymousBoolean = isTruthy(isAnonymous)
-		const user = await User.create({ name: 'asdadasd', email: 'asdasd' });
+		const { isAnonymous, caption } = req.body;
+		const isAnonymousBoolean = isTruthy(isAnonymous);
+		const user = req.user.mongouser;
+
 		const doc = await Model.create({
 			caption,
 			resources: resources._id,
 			author: user._id,
-			isAnonymous: isAnonymousBoolean
+			isAnonymous: isAnonymousBoolean,
 		});
 		resources['images'].forEach(async (img) => {
 			const image = await Image.findByIdAndUpdate(
