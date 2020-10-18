@@ -7,14 +7,18 @@
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
+    "express-mongo-sanitize": "^2.0.0",
     "firebase-admin": "^9.2.0",
     "googleapis": "^61.0.0",
+    "helmet": "^4.1.1",
+    "hpp": "^0.2.3",
     "mongoose": "^5.10.7",
     "morgan": "^1.10.0",
     "multer": "^1.4.2",
     "multer-storage-cloudinary": "^4.0.0",
     "nodemon": "^2.0.4",
     "uuid": "^8.3.1",
-    "validator": "^13.1.17"
+    "validator": "^13.1.17",
+    "xss-clean": "^0.1.1"
   }
 }
