@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: 'pickly-backend-dev'
+  namespace: 'default'
+  labels:
+    project: 'pickly'
+    environment: 'dev'
+    componenet: 'backend'
+    application: 'pickly-backend-dev'
+    version: '0.1'
+spec:
+  selector:
+    application: 'pickly-backend-dev'
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3001
