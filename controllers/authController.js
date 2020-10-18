@@ -13,11 +13,12 @@ module.exports.protector = catchAsync(async (req, res, next) => {
 	const [, token] = authorization.split(/bearer /i);
 	const tokeninfo = await verifyIdToken(token);
 
-	if (!(await activeEmailsModel.find({ email: tokeninfo.email })))
-		throw 'your email is not active, you cant sign up';
+	const isActive = await activeEmailsModel.find({ email: tokeninfo.email });
+	if (!isActive.length)
+		next(new appError('your email is not active, you cant sign up', 401));
 	req.user = { tokeninfo };
 
-	const mongoUser = await User.findOne({ email: req.user.tokeninfo.email });
+	let mongoUser = await User.findOne({ email: req.user.tokeninfo.email });
 	if (!mongoUser)
 		mongoUser = await User.create({
 			name: req.user.tokeninfo.name,
@@ -25,30 +26,7 @@ module.exports.protector = catchAsync(async (req, res, next) => {
 		});
 	req.user.mongouser = mongoUser.toJSON();
 
-	// 	verifyIdToken(token)
-	// 		.then(async (tokeninfo) => {
-	// 			if (!(await activeEmailsModel.find({ email: tokeninfo.email })))
-	// 				throw 'your email is not active, you cant sign up';
-	// 			req.user = {
-	// 				tokeninfo,
-	// 			};
-	// 		})
-	// 		.then(() => User.findOne({ email: req.user.tokeninfo.email }))
-	// 		.then(async (mongoUser) => {
-	// 			if (!mongoUser)
-	// 				mongoUser = await User.create({
-	// 					name: req.user.tokeninfo.name,
-	// 					email: req.user.tokeninfo.email,
-	// 				});
-	// 			req.user.mongouser = mongoUser.toJSON();
-	// 			next();
-	// 		})
-	// 		.catch((error) => {
-	// 			next(new appError(error.message, 401));
-	// 		});
-	// } else {
-	// 	next(new appError('unauthorized', 401));
-	// }
+	next();
 });
 
 module.exports.activeUsersOnly = (req, res, next) => {
