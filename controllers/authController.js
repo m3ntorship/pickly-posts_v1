@@ -9,7 +9,9 @@ module.exports.protector = catchAsync(async (req, res, next) => {
     headers: { authorization }
   } = req;
   if (!authorization)
-    next(new appError('please provide valid user token to proceed', 401));
+    return next(
+      new appError('please provide valid user token to proceed', 401)
+    );
   const [, token] = authorization.split(/bearer /i);
   const tokeninfo = await verifyIdToken(token);
 

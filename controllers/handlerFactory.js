@@ -107,10 +107,18 @@ exports.getAll = (Model, options) =>
       data.sort('-createdAt');
     }
     if (options.populateResources) {
-      data.populate('resources');
+      data.populate({
+        path: 'resources',
+        model: 'resources',
+        populate: {
+          path: 'images',
+          model: 'image',
+          select: 'name url'
+        }
+      });
     }
     if (options.populateAuthor) {
-      data.populate('author');
+      data.populate('author', 'name email');
     }
     data = await data;
 
