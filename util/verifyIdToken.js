@@ -1,5 +1,6 @@
 var admin = require("firebase-admin");
-var serviceAccount = require("../service-account.json");
+const { resolve } = require("path");
+const serviceAccount = resolve("secrets", "service-account.json");
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
@@ -7,4 +8,4 @@ admin.initializeApp({
 });
 
 const verifyIdToken = (idToken) => admin.auth().verifyIdToken(idToken);
-module.exports.verifyIdToken = verifyIdToken
+module.exports.verifyIdToken = verifyIdToken;
