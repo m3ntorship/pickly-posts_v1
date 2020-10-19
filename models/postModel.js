@@ -30,7 +30,8 @@ postSchema.methods.toJSONFor = function (user) {
     resources: this.resources,
     isAnonymous: this.isAnonymous,
     author: this.isAnonymous ? undefined : this.author,
-    Voted: user ? user.isVoted(this._id) : false
+    Voted: user ? user.isVoted(this._id) : false,
+    createdAt: this.createdAt
   };
 };
 const Post = mongoose.model('Post', postSchema);
