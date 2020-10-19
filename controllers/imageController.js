@@ -1,10 +1,8 @@
 const multer = require('multer');
-
 const { Image } = require('../models/imageModel');
 const factory = require('./handlerFactory');
 const catchAsync = require('./../util/catchAsync');
 const AppError = require('../util/appError');
-const User = require('../models/userMode');
 const Votes = require('../models/votesModel');
 
 exports.getImage = async (req, res, next) => {
@@ -39,14 +37,16 @@ exports.upvote = catchAsync(async (req, res, next) => {
   } = req;
 
   if (!user) return next(new AppError(`User isn't Found`, 401));
-
   const imageVotes = await Votes.findOne({ image: imageId });
   if (!imageVotes) return next(new AppError('Image  not found', 404));
-  if (!imageVotes.votedBy.find(user => user.toString() === userId.toString())) {
-    imageVotes.votedBy.push(userId.toString());
-    imageVotes.totalVotes += 1;
+  if (user.mongouser.isVoted(imageVotes.postId.toString()))
+    return next(new AppError('Already Voted', 400));
+  if (!imageVotes.voters.find(user => user.toString() === userId.toString())) {
+    imageVotes.voters.push(userId.toString());
+    imageVotes.count += 1;
+    await user.mongouser.vote(imageVotes.postId.toString());
     await imageVotes.save();
-    return res.json({ votes: imageVotes.totalVotes });
+    return res.json({ votes: imageVotes.count });
   } else {
     return next(new AppError('Already Voted', 400));
   }
