@@ -25,6 +25,7 @@ const postSchema = new mongoose.Schema(
 
 postSchema.methods.toJSONFor = function (user) {
   return {
+    _id: this._id,
     caption: this.caption,
     resources: this.resources,
     isAnonymous: this.isAnonymous,
