@@ -96,7 +96,7 @@ exports.deleteOne = Model =>
     const docId = req.params.id;
     const doc = await Model.deleteOne({ _id: docId });
     console.log(doc);
-    if (doc) res.status(204).send();
+    if (doc) return res.status(204).send();
     return next(new AppError('cannot find doc with that id', 404));
   });
 
