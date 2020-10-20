@@ -2,6 +2,7 @@ const Post = require('../models/postModel');
 const { Image, Resources } = require('../models/imageModel');
 const catchAsync = require('../util/catchAsync');
 const isTruthy = require('../util/isTruthy');
+const AppError = require('../util/appError');
 
 exports.postService = {
 	create() {
@@ -117,7 +118,8 @@ exports.postService = {
 	},
 	delete() {
 		return catchAsync(async (req, res, next) => {
-			if (!(await Post.deleteOne({ _id: req.params.id })))
+			const doc = await Post.deleteOne({ _id: req.params.id });
+			if (!doc.deletedCount)
 				return next(new AppError('cannot find doc with that id', 404));
 			res.status(204).send();
 		});
