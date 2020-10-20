@@ -4,6 +4,6 @@ const router = Router();
 const {activeUsersOnly} = require('../controllers/authController')
 
 router.route('/:imageId')
-.put(activeUsersOnly, imageContorller.upvote)
+.put(imageContorller.upvote)
 .get(imageContorller.getImage);
 module.exports = router;
