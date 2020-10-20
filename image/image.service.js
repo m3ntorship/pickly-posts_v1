@@ -2,6 +2,7 @@ const multer = require('multer');
 const AppError = require('../util/appError');
 const cloudinaryStorage = require('../util/cloudinary-custom-storage');
 const { Image } = require('../models/imageModel');
+const catchAsync = require('../util/catchAsync');
 
 exports.imageService = {
 	upload() {
@@ -25,4 +26,11 @@ exports.imageService = {
 		});
 		return upload.fields([{ name: 'images', maxCount: 2 }]);
 	},
+	getImage() {
+		return catchAsync(async (req, res, next) => {
+			const image = await Image.findById(req.params.id);
+			res.status(200).json({ image });
+		});
+  },
+  
 };
