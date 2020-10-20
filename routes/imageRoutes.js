@@ -1,7 +1,6 @@
 const { Router } = require('express');
 const imageContorller = require('../controllers/imageController');
 const router = Router();
-const { activeUsersOnly } = require('../controllers/authController');
 
 router
   .route('/:imageId/votes')
