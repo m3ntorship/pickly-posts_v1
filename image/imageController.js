@@ -4,3 +4,4 @@ const { imageService } = require('./image.service');
 
 exports.uploadImage = imageService.upload();
 exports.getImage = imageService.get();
+exports.upvoteImage = imageService.upvote();

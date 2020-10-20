@@ -1,10 +1,9 @@
 const multer = require('multer');
-
 const { Image } = require('../models/imageModel');
-const factory = require('../controllers/handlerFactory');
-const catchAsync = require('../util/catchAsync');
+const factory = require('./handlerFactory');
+const catchAsync = require('./../util/catchAsync');
 const AppError = require('../util/appError');
-const User = require('../models/userMode');
+const Votes = require('../models/votesModel');
 
 // exports.getImage = async (req, res, next) => {
 //   const { id } = req.params;
@@ -14,10 +13,10 @@ const User = require('../models/userMode');
 // };
 // exports.uploadImage = (req, res) => {
 //   const upload = multer({
-//     storage: cloudinaryStorage,
-//   }).array("image", 2);
+//     storage: cloudinaryStorage
+//   }).array('image', 2);
 
-//   upload(req, res, (err) => {
+//   upload(req, res, err => {
 //     if (err) {
 //       res.send(err);
 //     }
@@ -28,25 +27,55 @@ const User = require('../models/userMode');
 // };
 // exports.postImage = factory.createOne(Image);
 
-exports.upvote = catchAsync(async (req, res, next) => {
-	const {
-		params: { imageId },
-		user,
-		user: {
-			mongouser: { _id: userId },
-		},
-	} = req;
+// Helper function to vote on an image
+// async function vote(imageVotes, user, userId, res, next) {
+//   if (user.mongouser.isVoted(imageVotes.postId.toString())) {
+//     return next(new AppError('Already Voted', 400));
+//   }
 
-	if (!user) return next(new AppError(`User isn't Found`, 401));
+//   if (!imageVotes.voters.some(user => user.toString() === userId.toString())) {
+//     imageVotes.voters.push(userId.toString());
+//     imageVotes.count += 1;
 
-	const image = await Image.findById(imageId);
-	if (!image) return next(new AppError('Image is not found', 404));
-	if (!image.votes.find((vote) => vote.toString() === userId.toString())) {
-		image.votes.push(userId.toString());
-		image.voutesCount = image.voutesCount + 1; // TODO: move this to separate vote model
-		await image.save(); //TODO: handle this error properly
-		res.json({ image });
-	} else {
-		return next(new AppError('Already Voted', 400));
-	}
-});
+//     await user.mongouser.vote(imageVotes.postId.toString());
+//     await imageVotes.save();
+
+//     return res.json({
+//       votes: imageVotes.count
+//     });
+//   } else {
+//     return next(new AppError('Already Voted', 400));
+//   }
+// }
+
+// exports.upvote = catchAsync(async (req, res, next) => {
+//   const {
+//     params: { imageId },
+//     user,
+//     user: {
+//       mongouser: { _id: userId }
+//     }
+//   } = req;
+
+//   if (!user) return next(new AppError(`User isn't Found`, 401));
+
+//   const img = await Image.findById(imageId);
+//   if (!img) {
+//     return next(new AppError('Image  not found', 404));
+//   }
+
+//   let imageVotes = await Votes.findOne({ image: imageId });
+
+//   if (!imageVotes) {
+//     imageVotes = await Votes.create({
+//       image: img._id,
+//       postId: img.postId.toString()
+//     });
+//     img.votes = imageVotes._id;
+//     await img.save();
+//     return vote(imageVotes, user, userId, res, next);
+//   } else {
+//     const imageVotes = await Votes.findOne({ image: imageId });
+//     return vote(imageVotes, user, userId, res, next);
+//   }
+// });
