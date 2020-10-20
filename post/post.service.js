@@ -7,49 +7,47 @@ exports.postService = {
 	create() {
 		return catchAsync(async (req, res, next) => {
 			if (!req.files.images) {
-				return next(new AppError('Please Upload atleast  image', 400));
+				return next(
+					new AppError('Please Upload atleast one image', 400)
+				);
 			}
-
 			const images = req.files.images.map((image) => {
-				return {
+				return new Image({
 					name: image.originalname.replace(' ', ''),
 					url: image.path,
 					provider: 'cloudinary',
-				};
+				});
 			});
-			const image = await Image.create(images);
-			const resources = await Resources.create({ images: image });
+
+			const imagesIds = images.map((image) => image._id);
+
+			const resources = await Resources.create({ images: imagesIds });
 			const { isAnonymous, caption } = req.body;
 			const isAnonymousBoolean = isTruthy(isAnonymous);
-
 			const user = req.user.mongouser;
 
-			const post = await Post.create({
+			const doc = await Post.create({
 				caption,
 				resources: resources._id,
 				author: user._id,
 				isAnonymous: isAnonymousBoolean,
 			});
 
-			resources['images'].forEach(async (img) => {
-				const image = await Image.findByIdAndUpdate(
-					img,
-					{ linkedPost: post._id },
-					{ new: true }
-				).exec();
+			images.forEach(async (img) => {
+				img.postId = doc._id;
+				await img.save();
 			});
 
 			res.status(201).json({
 				status: 'success',
-				data: post,
+				data: doc.toJSONFor(req.user.mongouser),
 			});
 		});
 	},
 	get(popOptions) {
 		return catchAsync(async (req, res, next) => {
 			let query = Post.findById(req.params.id);
-			if (popOptions) query = query.populate(popOptions);
-			const doc = await query;
+			let doc = await query;
 
 			if (!doc) {
 				return next(
@@ -57,9 +55,43 @@ exports.postService = {
 				);
 			}
 
+			if (doc.author) {
+				await doc.populate('author', 'name email').execPopulate();
+			}
+
+			if (req.user.mongouser.isVoted(doc._id)) {
+				await doc
+					.populate({
+						path: popOptions,
+						model: 'resources',
+						populate: {
+							path: 'images',
+							model: 'image',
+							select: 'name url',
+							populate: {
+								path: 'votes',
+								model: 'Votes',
+								select: 'count  updatedAt',
+							},
+						},
+					})
+					.execPopulate();
+			} else {
+				await doc
+					.populate({
+						path: popOptions,
+						model: 'resources',
+						populate: {
+							path: 'images',
+							model: 'image',
+							select: 'name url',
+						},
+					})
+					.execPopulate();
+			}
 			res.status(200).json({
 				status: 'success',
-				data: doc,
+				data: doc.toJSONFor(req.user.mongouser),
 			});
 		});
 	},
@@ -78,7 +110,7 @@ exports.postService = {
 			res.status(200).json({
 				status: 'success',
 				data: {
-					data: doc,
+					data: doc.toJSONFor(req.user.mongouser),
 				},
 			});
 		});
@@ -97,15 +129,57 @@ exports.postService = {
 				data.sort('-createdAt');
 			}
 			if (options.populateResources) {
-				data.populate('resources');
+				data.populate({
+					path: 'resources',
+					model: 'resources',
+					populate: {
+						path: 'images',
+						model: 'image',
+						select: 'name url',
+					},
+				});
 			}
 			if (options.populateAuthor) {
-				data.populate('author');
+				data.populate('author', 'name email');
 			}
 			data = await data;
-			if (!data)
+
+			if (!data) {
 				return next(new AppError('No Polls found with that ID', 404));
-			res.status(200).json({ data });
+			} else {
+				const aa = data.map((post) => {
+					if (req.user.mongouser.isVoted(post._id)) {
+						post.populate({
+							path: 'resources',
+							model: 'resources',
+							populate: {
+								path: 'images',
+								model: 'image',
+								select: 'name url',
+								populate: {
+									path: 'votes',
+									model: 'Votes',
+									select: 'count image updatedAt',
+								},
+							},
+						}).execPopulate();
+					} else {
+						post.populate({
+							path: 'resources',
+							model: 'resources',
+							populate: {
+								path: 'images',
+								model: 'image',
+								select: 'name url',
+							},
+						}).execPopulate();
+					}
+
+					const t = post.toJSONFor(req.user.mongouser);
+					return t;
+				});
+				res.status(200).json({ data: aa });
+			}
 		});
 	},
 };
