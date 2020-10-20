@@ -46,18 +46,7 @@ exports.createOne = Model =>
 exports.getOne = (Model, popOptions) =>
   catchAsync(async (req, res, next) => {
     let query = Model.findById(req.params.id);
-    if (popOptions)
-      query = query
-        .populate({
-          path: popOptions,
-          model: 'resources',
-          populate: {
-            path: 'images',
-            model: 'image'
-          }
-        })
-        .exec();
-    const doc = await query;
+    let doc = await query;
 
     if (!doc) {
       return next(new AppError('No document found with that ID', 404));
@@ -67,6 +56,36 @@ exports.getOne = (Model, popOptions) =>
       await doc.populate('author', 'name email').execPopulate();
     }
 
+    if (req.user.mongouser.isVoted(doc._id)) {
+      await doc
+        .populate({
+          path: popOptions,
+          model: 'resources',
+          populate: {
+            path: 'images',
+            model: 'image',
+            select: 'name url',
+            populate: {
+              path: 'votes',
+              model: 'Votes',
+              select: 'count  updatedAt'
+            }
+          }
+        })
+        .execPopulate();
+    } else {
+      await doc
+        .populate({
+          path: popOptions,
+          model: 'resources',
+          populate: {
+            path: 'images',
+            model: 'image',
+            select: 'name url'
+          }
+        })
+        .execPopulate();
+    }
     res.status(200).json({
       status: 'success',
       data: doc.toJSONFor(req.user.mongouser)
@@ -125,8 +144,41 @@ exports.getAll = (Model, options) =>
     if (!data) {
       return next(new AppError('No Polls found with that ID', 404));
     } else {
-      res
-        .status(200)
-        .json({ data: data.map(post => post.toJSONFor(req.user.mongouser)) });
+      const aa = data.map(post => {
+        if (req.user.mongouser.isVoted(post._id)) {
+          post
+            .populate({
+              path: 'resources',
+              model: 'resources',
+              populate: {
+                path: 'images',
+                model: 'image',
+                select: 'name url',
+                populate: {
+                  path: 'votes',
+                  model: 'Votes',
+                  select: 'count image updatedAt'
+                }
+              }
+            })
+            .execPopulate();
+        } else {
+          post
+            .populate({
+              path: 'resources',
+              model: 'resources',
+              populate: {
+                path: 'images',
+                model: 'image',
+                select: 'name url'
+              }
+            })
+            .execPopulate();
+        }
+
+        const t = post.toJSONFor(req.user.mongouser);
+        return t;
+      });
+      res.status(200).json({ data: aa });
     }
   });
