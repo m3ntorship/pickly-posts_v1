@@ -27,6 +27,27 @@ exports.uploadImage = (req, res) => {
 };
 exports.postImage = factory.createOne(Image);
 
+// Helper function to vote on an image
+async function vote(imageVotes, user, userId, res, next) {
+  if (user.mongouser.isVoted(imageVotes.postId.toString())) {
+    return next(new AppError('Already Voted', 400));
+  }
+
+  if (!imageVotes.voters.some(user => user.toString() === userId.toString())) {
+    imageVotes.voters.push(userId.toString());
+    imageVotes.count += 1;
+
+    await user.mongouser.vote(imageVotes.postId.toString());
+    await imageVotes.save();
+
+    return res.json({
+      votes: imageVotes.count
+    });
+  } else {
+    return next(new AppError('Already Voted', 400));
+  }
+}
+
 exports.upvote = catchAsync(async (req, res, next) => {
   const {
     params: { imageId },
@@ -37,17 +58,24 @@ exports.upvote = catchAsync(async (req, res, next) => {
   } = req;
 
   if (!user) return next(new AppError(`User isn't Found`, 401));
-  const imageVotes = await Votes.findOne({ image: imageId });
-  if (!imageVotes) return next(new AppError('Image  not found', 404));
-  if (user.mongouser.isVoted(imageVotes.postId.toString()))
-    return next(new AppError('Already Voted', 400));
-  if (!imageVotes.voters.find(user => user.toString() === userId.toString())) {
-    imageVotes.voters.push(userId.toString());
-    imageVotes.count += 1;
-    await user.mongouser.vote(imageVotes.postId.toString());
-    await imageVotes.save();
-    return res.json({ votes: imageVotes.count });
+
+  const img = await Image.findById(imageId);
+  if (!img) {
+    return next(new AppError('Image  not found', 404));
+  }
+
+  let imageVotes = await Votes.findOne({ image: imageId });
+
+  if (!imageVotes) {
+    imageVotes = await Votes.create({
+      image: img._id,
+      postId: img.postId.toString()
+    });
+    img.votes = imageVotes._id;
+    await img.save();
+    return vote(imageVotes, user, userId, res, next);
   } else {
-    return next(new AppError('Already Voted', 400));
+    const imageVotes = await Votes.findOne({ image: imageId });
+    return vote(imageVotes, user, userId, res, next);
   }
 });
