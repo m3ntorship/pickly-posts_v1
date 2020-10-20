@@ -1,25 +1,30 @@
 const mongoose = require('mongoose');
 
-const votesSchema = new mongoose.Schema({
-  image: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'image'
-  },
-  voters: [
-    {
+const votesSchema = new mongoose.Schema(
+  {
+    image: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'user'
+      ref: 'image'
+    },
+    voters: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'user'
+      }
+    ],
+    count: {
+      type: Number,
+      default: 0
+    },
+    postId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Post'
     }
-  ],
-  count: {
-    type: Number,
-    default: 0
   },
-  postId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Post'
+  {
+    timestamps: true
   }
-});
+);
 
 const Votes = mongoose.model('Votes', votesSchema);
 
