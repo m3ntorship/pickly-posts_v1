@@ -1,9 +1,10 @@
 const multer = require('multer');
-const factory = require('./handlerFactory');
-const AppError = require('./../util/appError');
+const factory = require('../controllers/handlerFactory');
+const AppError = require('../util/appError');
 const Post = require('../models/postModel');
 const cloudinaryStorage = require('../util/cloudinary-custom-storage');
 const { Resources } = require('../models/imageModel');
+const { postService } = require('./post.service');
 
 const multerStorage = multer.memoryStorage();
 
@@ -26,11 +27,12 @@ const upload = multer({
 
 exports.uploadImages = upload.fields([{ name: 'images', maxCount: 2 }]);
 
-exports.getPost = factory.getOne(Post, 'resources');
-exports.createPost = factory.createOne(Post);
-exports.updatePost = factory.updateOne(Post);
-exports.deletePost = factory.deleteOne(Post);
-exports.getAllPosts = factory.getAll(Post, {
+// exports.getPost = factory.getOne(Post, 'resources');
+exports.getPost = postService.get(['resources', 'author']);
+exports.createPost = postService.create();
+exports.updatePost = postService.update();
+exports.deletePost = postService.delete();
+exports.getAllPosts = postService.getAll({
 	getRecentFirst: true,
 	populateResources: true,
 	populateAuthor: true,
