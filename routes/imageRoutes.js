@@ -1,5 +1,5 @@
 const { Router } = require('express');
-const imageContorller = require('../controllers/imageController');
+const imageContorller = require('../image/imageController');
 const router = Router();
 const {activeUsersOnly} = require('../controllers/authController')
 

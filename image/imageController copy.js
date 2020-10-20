@@ -1,8 +1,8 @@
 const multer = require("multer");
 
 const { Image } = require("../models/imageModel");
-const factory = require("./handlerFactory");
-const catchAsync = require("./../util/catchAsync");
+const factory = require("../controllers/handlerFactory");
+const catchAsync = require("../util/catchAsync");
 const AppError = require("../util/appError");
 const User = require("../models/userMode");
 
