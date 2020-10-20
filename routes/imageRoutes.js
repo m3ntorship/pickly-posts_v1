@@ -6,4 +6,5 @@ router
   .route('/:imageId/votes')
   .put(imageContorller.upvote)
   .get(imageContorller.getImage);
+
 module.exports = router;
