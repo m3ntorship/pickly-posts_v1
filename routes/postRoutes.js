@@ -1,11 +1,12 @@
 const express = require('express');
 const postController = require('../post/postController');
+const imageController = require('../image/imageController');
 
 const router = express.Router();
 
 router
 	.route('/')
-	.post(postController.uploadImages, postController.createPost)
+	.post(imageController.uploadImage, postController.createPost)
 	.get(postController.getAllPosts);
 
 router
