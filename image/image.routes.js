@@ -1,5 +1,5 @@
 const { Router } = require('express');
-const imageContorller = require('../image/imageController');
+const imageContorller = require('./image.controller');
 const router = Router();
 
 router.route('/:imageId').get(imageContorller.getImage);

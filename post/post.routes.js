@@ -1,6 +1,6 @@
 const express = require('express');
-const postController = require('../post/postController');
-const imageController = require('../image/imageController');
+const postController = require('./post.controller');
+const imageController = require('../image/image.controller');
 
 const router = express.Router();
 
