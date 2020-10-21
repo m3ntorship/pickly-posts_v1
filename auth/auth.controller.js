@@ -1,7 +1,6 @@
 const appError = require('../util/appError');
-const activeEmailsModel = require('../models/activeEmailsModel');
 const { verifyIdToken } = require('../util/verifyIdToken');
-const User = require('../models/userMode');
+const User = require('./user.model');
 const catchAsync = require('../util/catchAsync');
 
 module.exports.protector = catchAsync(async (req, res, next) => {
@@ -14,10 +13,6 @@ module.exports.protector = catchAsync(async (req, res, next) => {
     );
   const [, token] = authorization.split(/bearer /i);
   const tokeninfo = await verifyIdToken(token);
-
-  // const isActive = await activeEmailsModel.find({ email: tokeninfo.email });
-  // if (!isActive.length)
-  //   next(new appError("your email is not active, you cant sign up", 401));
 
   req.user = { tokeninfo };
 

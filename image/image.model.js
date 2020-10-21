@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const Votes = require('./votesModel');
+const Votes = require('./votes.model');
 
 const imageSchema = new mongoose.Schema(
   {

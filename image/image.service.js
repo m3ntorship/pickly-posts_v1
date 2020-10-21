@@ -1,6 +1,6 @@
 const multer = require('multer');
-const { Image } = require('../models/imageModel');
-const Votes = require('../models/votesModel');
+const { Image } = require('./image.model');
+const Votes = require('./votes.model');
 const AppError = require('../util/appError');
 const cloudinaryStorage = require('../util/cloudinary-custom-storage');
 const catchAsync = require('../util/catchAsync');
