@@ -2,8 +2,8 @@ const dotenv = require('dotenv');
 const express = require('express');
 const { resolve } = require('path');
 const cors = require('cors');
-const postRouter = require('./post/post.routes');
-const imageRouter = require('./image/image.routes');
+const postRouter = require('./posts/post.routes');
+const imageRouter = require('./images/image.routes');
 const { protector } = require('./auth/auth.controller');
 const errorHandler = require('./middleware/errorhandler');
 
