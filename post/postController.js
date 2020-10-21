@@ -1,6 +1,6 @@
 const multer = require('multer');
-const factory = require('./handlerFactory');
-const AppError = require('./../util/appError');
+const factory = require('../controllers/handlerFactory');
+const AppError = require('../util/appError');
 const Post = require('../models/postModel');
 const cloudinaryStorage = require('../util/cloudinary-custom-storage');
 
