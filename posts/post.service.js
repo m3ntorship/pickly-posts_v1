@@ -1,5 +1,5 @@
 const Post = require('./post.model');
-const { Image, Resources } = require('../image/image.model');
+const { Image, Resources } = require('../images/image.model');
 const catchAsync = require('../util/catchAsync');
 const isTruthy = require('../util/isTruthy');
 const AppError = require('../util/appError');
