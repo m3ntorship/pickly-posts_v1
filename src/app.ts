@@ -1,14 +1,17 @@
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
- 
+import * as mongoose from 'mongoose';
+import 'dotenv/config';
+
 class App {
   public app: express.Application;
-  public port: number;
+  public port: string | number;
  
   constructor(controllers, port) {
     this.app = express();
-    this.port = port;
- 
+    this.port = process.env.PORT || 3000;
+    
+    this.mongoConnect();
     this.initializeMiddlewares();
     this.initializeControllers(controllers);
   }
@@ -21,6 +24,11 @@ class App {
     controllers.forEach((controller) => {
       this.app.use('/', controller.router);
     });
+  }
+
+  private mongoConnect() {
+    mongoose.connect(process.env.DB, { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true, useFindAndModify: false });
+    console.log(`Databae is connected...`);
   }
  
   public listen() {

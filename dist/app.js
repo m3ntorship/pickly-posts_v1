@@ -2,10 +2,13 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const express = require("express");
 const bodyParser = require("body-parser");
+const mongoose = require("mongoose");
+require("dotenv/config");
 class App {
     constructor(controllers, port) {
         this.app = express();
-        this.port = port;
+        this.port = process.env.PORT || 3000;
+        this.mongoConnect();
         this.initializeMiddlewares();
         this.initializeControllers(controllers);
     }
@@ -16,6 +19,10 @@ class App {
         controllers.forEach((controller) => {
             this.app.use('/', controller.router);
         });
+    }
+    mongoConnect() {
+        mongoose.connect(process.env.DB, { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true, useFindAndModify: false });
+        console.log(`Databae is connected...`);
     }
     listen() {
         this.app.listen(this.port, () => {
