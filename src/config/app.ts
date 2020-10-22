@@ -14,7 +14,7 @@ class App {
       this.mongoSetup();
       this.test_routes.route(this.app);
    }
-   
+
    private config(): void {
       // support application/json type post data
       this.app.use(bodyParser.json());
@@ -23,6 +23,7 @@ class App {
 
    private mongoSetup(): void {
       mongoose.connect(this.mongoUrl, { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true, useFindAndModify: false });
+      console.log(`Databae is connected...`)
    }
 }
 

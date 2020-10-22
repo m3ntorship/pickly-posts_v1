@@ -21,6 +21,7 @@ class App {
     }
     mongoSetup() {
         mongoose.connect(this.mongoUrl, { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true, useFindAndModify: false });
+        console.log(`Databae is connected...`);
     }
 }
 exports.default = new App().app;
