@@ -1,7 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const app_1 = require("./config/app");
-const PORT = 3002;
-app_1.default.listen(PORT, () => {
-    console.log('Express server listening on port ' + PORT);
-});
+const app_1 = require("./app");
+const posts_controller_1 = require("./posts/posts.controller");
+const app = new app_1.default([
+    new posts_controller_1.default(),
+], 3002);
+app.listen();

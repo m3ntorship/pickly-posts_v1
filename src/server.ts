@@ -1,6 +1,11 @@
-
-import app from "./config/app";
-const PORT = 3002;
-app.listen(PORT, () => {
-   console.log('Express server listening on port ' + PORT);
-})
+import App from './app';
+import PostsController from './posts/posts.controller';
+ 
+const app = new App(
+  [
+    new PostsController(),
+  ],
+  3002,
+);
+ 
+app.listen();
