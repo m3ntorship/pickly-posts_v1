@@ -1,32 +1,32 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: 'pickly-backend-dev'
+  name: 'pickly-posts-dev'
   namespace: 'default'
   labels:
     project: 'pickly'
     environment: 'dev'
-    componenet: 'backend'
-    application: 'pickly-backend-dev'
-    version: '0.1'
+    componenet: 'posts'
+    application: 'pickly-posts-dev'
+    version: '0.5'
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
-      application: 'pickly-backend-dev'
+      application: 'pickly-posts-dev'
   template:
     metadata:
       labels:
         project: 'pickly'
         environment: 'dev'
-        componenet: 'backend'
-        application: 'pickly-backend-dev'
+        componenet: 'posts'
+        application: 'pickly-posts-dev'
     spec:
       containers:
-        - name: 'pickly-backend-dev'
-          image: 'm3ntorshipci/pickly-backend:0.1'
+        - name: 'pickly-posts-dev'
+          image: 'm3ntorshipci/pickly-backend:0.5'
           volumeMounts:
-            - name: 'pickly-backend-dev-config-files'
+            - name: 'pickly-posts-dev-config-files'
               mountPath: /pickly-backend/secrets
           imagePullPolicy: IfNotPresent
           ports:
@@ -34,6 +34,6 @@ spec:
               containerPort: 3001
               protocol: TCP
       volumes:
-        - name: 'pickly-backend-dev-config-files'
+        - name: 'pickly-posts-dev-config-files'
           configMap:
-            name: 'pickly-backend-dev'
+            name: 'pickly-posts-dev'

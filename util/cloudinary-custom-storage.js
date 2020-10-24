@@ -1,6 +1,8 @@
+const dotenv = require("dotenv");
 const cloudinary = require("cloudinary").v2;
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
-require("dotenv").config();
+const { resolve } = require("path");
+dotenv.config({ path: resolve("secrets", ".env") });
 
 //cloudinary config
 cloudinary.config({
@@ -12,7 +14,7 @@ cloudinary.config({
 const cloudinaryStorage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
-    folder: process.env.API_FOLDER_NAME || 'temp',
+    folder: process.env.API_FOLDER_NAME || "temp",
     format: async (req, file) => file.originalname.split(".")[1],
     public_id: (req, file) => file.public_id,
   },
