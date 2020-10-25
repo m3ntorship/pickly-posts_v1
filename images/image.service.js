@@ -46,7 +46,7 @@ exports.imageService = {
 			storage: cloudinaryStorage,
 			fileFilter: multerFilter,
 		});
-		return upload.fields([{ name: 'images', maxCount: 2 }]);
+		return upload.fields([{ name: 'images', maxCount: 4 }]);
 	},
 	get() {
 		return catchAsync(async (req, res, next) => {

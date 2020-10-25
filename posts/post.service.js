@@ -149,38 +149,44 @@ exports.postService = {
 			if (!data) {
 				return next(new AppError('No Polls found with that ID', 404));
 			} else {
-				const aa = data.map((post) => {
-					if (req.user.mongouser.isVoted(post._id)) {
-						post.populate({
-							path: 'resources',
-							model: 'resources',
-							populate: {
-								path: 'images',
-								model: 'image',
-								select: 'name url',
-								populate: {
-									path: 'votes',
-									model: 'Votes',
-									select: 'count image updatedAt',
-								},
-							},
-						}).execPopulate();
-					} else {
-						post.populate({
-							path: 'resources',
-							model: 'resources',
-							populate: {
-								path: 'images',
-								model: 'image',
-								select: 'name url',
-							},
-						}).execPopulate();
-					}
+				const dataWithVotes = await Promise.all(
+					data.map(async (post) => {
+						if (req.user.mongouser.isVoted(post._id)) {
+							await post
+								.populate({
+									path: 'resources',
+									model: 'resources',
+									populate: {
+										path: 'images',
+										model: 'image',
+										select: 'name url',
+										populate: {
+											path: 'votes',
+											model: 'Votes',
+											select: 'count image updatedAt',
+										},
+									},
+								})
+								.execPopulate();
+						} else {
+							await post
+								.populate({
+									path: 'resources',
+									model: 'resources',
+									populate: {
+										path: 'images',
+										model: 'image',
+										select: 'name url',
+									},
+								})
+								.execPopulate();
+						}
 
-					const t = post.toJSONFor(req.user.mongouser);
-					return t;
-				});
-				res.status(200).json({ data: aa });
+						const doc = post.toJSONFor(req.user.mongouser);
+						return doc;
+					})
+				);
+				res.status(200).json({ data: dataWithVotes });
 			}
 		});
 	},
