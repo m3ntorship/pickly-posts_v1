@@ -1,4 +1,5 @@
 import * as express from 'express';
+import AppError from 'handlers/AppError';
 import Post from './posts.interface';
 
 class PostsController {
@@ -22,8 +23,12 @@ class PostsController {
     this.router.post(this.path, this.createPost);
   }
 
-  getAllPosts = (req: express.Request, res: express.Response) => {
-    res.send(this.posts);
+  getAllPosts = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    if (this.posts) {
+      res.send(this.posts);
+    }else {
+      next(new AppError(401, 'Posts not found'));
+    }
   }
 
   createPost = (req:express.Request, res: express.Response) => {

@@ -2,6 +2,7 @@ import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import * as mongoose from 'mongoose';
 import 'dotenv/config';
+import errorMiddleware from 'middlewares/error.middleware';
 
 class App {
   public app: express.Application;
@@ -14,6 +15,11 @@ class App {
     this.mongoConnect();
     this.initializeMiddlewares();
     this.initializeControllers(controllers);
+    this.intializeErrorHnadler();
+  }
+
+  private intializeErrorHnadler() {
+    this.app.use(errorMiddleware);
   }
  
   private initializeMiddlewares() {
