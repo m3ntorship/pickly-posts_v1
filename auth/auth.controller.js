@@ -11,7 +11,8 @@ const userEnricher = async user => {
   if (!mongoUser)
     mongoUser = await User.create({
       name: user.tokeninfo.name,
-      email: user.tokeninfo.email
+      email: user.tokeninfo.email,
+      userImage: user.tokeninfo.picture
     });
   return mongoUser;
 };
