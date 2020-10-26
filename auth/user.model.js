@@ -3,7 +3,7 @@ const userSchema = new mongoose.Schema({
   name: String,
   email: String,
   password: String,
-  avatar: String,
+  userImage: String,
   posts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Post' }],
   votes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Article' }],
   googleId: String

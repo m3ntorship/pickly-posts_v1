@@ -31,6 +31,7 @@ exports.postService = {
 				caption,
 				resources: resources._id,
 				author: user._id,
+				
 				isAnonymous: isAnonymousBoolean,
 			});
 
