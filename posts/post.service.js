@@ -31,7 +31,6 @@ exports.postService = {
 				caption,
 				resources: resources._id,
 				author: user._id,
-				
 				isAnonymous: isAnonymousBoolean,
       });
       req.user.mongouser.posts.push(doc._id);
@@ -60,7 +59,7 @@ exports.postService = {
 			}
 
 			if (doc.author) {
-				await doc.populate('author', 'name email').execPopulate();
+				await doc.populate('author', 'name email userImage').execPopulate();
 			}
 
 			if (req.user.mongouser.isVoted(doc._id)) {
@@ -75,7 +74,7 @@ exports.postService = {
 							populate: {
 								path: 'votes',
 								model: 'Votes',
-								select: 'count  updatedAt',
+								select: 'count updatedAt',
 							},
 						},
 					})
@@ -145,7 +144,7 @@ exports.postService = {
 				});
 			}
 			if (options.populateAuthor) {
-				data.populate('author', 'name email');
+				data.populate('author', 'name email userImage');
 			}
 			data = await data;
 
