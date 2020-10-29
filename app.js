@@ -4,6 +4,7 @@ const { resolve } = require('path');
 const cors = require('cors');
 const postRouter = require('./posts/post.routes');
 const imageRouter = require('./images/image.routes');
+const feedbackRouter = require('./feedbacks/feedback.routes');
 const { protector } = require('./auth/auth.controller');
 const errorHandler = require('./middleware/errorhandler');
 dotenv.config({ path: resolve('secrets', '.env') });
@@ -25,7 +26,7 @@ app.get('/protected', (req, res) => {
 
 app.use('/posts', postRouter);
 app.use('/images', imageRouter);
-
+app.use('/feedbacks', feedbackRouter);
 app.use(errorHandler);
 
 module.exports = app;
