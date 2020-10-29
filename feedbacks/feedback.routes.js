@@ -4,7 +4,7 @@ const router = express.Router();
 
 
 router.route('/')
-  .post( feedbackContorller.postFeedback)
+  .post( feedbackContorller.postFeedbacks)
   .get( feedbackContorller.getAllFeedbacks);
 
 module.exports = router;
