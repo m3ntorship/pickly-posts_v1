@@ -4,7 +4,7 @@ const { resolve } = require('path');
 const User = require('./user.model');
 const catchAsync = require('../util/catchAsync');
 const { protector } = require('@m3ntorship/pickly-protector');
-const serviceAccount = resolve('secrets', 'service-account.json');
+const serviceAccount = resolve('config', 'service-account.json');
 
 const userEnricher = async user => {
   let mongoUser = await User.findOne({ email: user.tokeninfo.email });

@@ -106,3 +106,4 @@ dist
 service-account.json
 package-lock.json
 secrets
+config
