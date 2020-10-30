@@ -1,0 +1,15 @@
+name: deploy posts service PR to playground cluster
+
+# trigger
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+    branches:
+      - develop
+jobs:
+  say_hello:
+    runs-on: ubuntu-latest
+    steps:
+      # checkout the code commit
+      - run: echo 'hello m3ntorship'
+  
