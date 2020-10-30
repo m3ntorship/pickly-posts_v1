@@ -29,6 +29,9 @@ spec:
             - name: web
               containerPort: {{{M3_PORT}}}
               protocol: TCP
+          volumeMounts:
+            - name: '{{{M3_PROJECT}}}-{{{M3_COMPONENET}}}-dev-config-files'
+              mountPath: /pickly-posts/secrets
           resources:
             requests:
               memory: "{{{M3_MEMORY}}}"
@@ -36,3 +39,7 @@ spec:
             limits:
               memory: "{{{M3_MEMORY}}}"
               cpu: "{{{M3_CPU}}}"
+      volumes:
+        - name: '{{{M3_PROJECT}}}-{{{M3_COMPONENET}}}-dev-config-files'
+          configMap:
+            name: '{{{M3_PROJECT}}}-{{{M3_COMPONENET}}}-dev'
