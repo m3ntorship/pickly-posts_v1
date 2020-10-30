@@ -76,7 +76,7 @@ jobs:
           echo $M3_NAMESPACE
           mkdir -p $M3_TEMP_DIR
           for f in $M3_DEPLOYMENT_PATH/apply/*; do mo -u "$f" > $M3_TEMP_DIR/"$(basename $f)"; done
-          kubectl get configmap -o yaml pickly-posts-dev | sed "s/namespace: default/namespace: $M3_NAMESPACE/" | kubectl create -f -
+          kubectl get configmap -o yaml pickly-posts-dev | sed "s/namespace: default/namespace: $M3_NAMESPACE/" | kubectl apply -f -
           kubectl apply -f $M3_TEMP_DIR
       
       - name: comment PR with deployment links
