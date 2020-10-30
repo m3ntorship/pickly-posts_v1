@@ -1,0 +1,12 @@
+{
+  "app": {
+    "port": "3002",
+    "db_uri": "mongodb://localhost:27017/multer-m3ntorship"
+  },
+
+  "cloudinary": {
+    "cloud_name": "",
+    "api_key": "",
+    "api_secret": ""
+  }
+}
