@@ -8,6 +8,7 @@ const postRouter = require('./posts/post.routes');
 const imageRouter = require('./images/image.routes');
 const { protector } = require('./auth/auth.controller');
 const errorHandler = require('./middleware/errorhandler');
+const logger = require('./util/logger');
 dotenv.config({ path: resolve('secrets', '.env') });
 
 const app = express();
@@ -16,11 +17,7 @@ app.use(cors(), express.json());
 
 app.use(
   expressWinston.logger({
-    transports: [new winston.transports.Console()],
-    format: winston.format.combine(
-      winston.format.colorize(),
-      winston.format.json()
-    ),
+    winstonInstance: logger,
     meta: false,
     msg: 'HTTP {{req.method}} {{req.url}}',
     expressFormat: true
@@ -43,11 +40,7 @@ app.use('/images', imageRouter);
 
 app.use(
   expressWinston.errorLogger({
-    transports: [new winston.transports.Console()],
-    format: winston.format.combine(
-      winston.format.colorize(),
-      winston.format.json()
-    )
+    winstonInstance: logger
   })
 );
 
