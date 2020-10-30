@@ -6,10 +6,48 @@ on:
     types: [opened, synchronize, reopened, closed]
     branches:
       - develop
+env:
+  # COMMON deployment envs
+  M3_ORGANIZATION: ${{github.event.organization.login}}
+  M3_REPOSITORY: ${{github.event.repository.name}}
+  M3_PROJECT: pickly
+  M3_COMPONENET: posts
+  M3_ENVIRONMENT: 'pr-${{ github.event.number }}'
+  M3_VERSION: 'pr-${{ github.event.number }}-${{ github.run_number}}'
+  M3_NAMESPACE: '${{github.event.organization.login}}-${{github.event.repository.name}}-pr-${{ github.event.number }}'
+  M3_DEPLOYMENT_PATH: deploy/dev/posts
+  M3_TEMP_DIR: temp
+  M3_REPLICAS: '1'
+
+  # posts service
+  M3_DOCKER_FILE: Dockerfile
+  M3_IMAGE: m3ntorshipci/pickly-posts
+  M3_PORT: '3001'
+  M3_MEMORY: '64Mi'
+  M3_CPU: '50m'
+
 jobs:
-  say_hello:
+  build_frontend:
+    if: ${{github.event.action != 'closed'}}
     runs-on: ubuntu-latest
     steps:
       # checkout the code commit
-      - run: echo 'hello m3ntorship'
-  
+      - name: checkout the code
+        uses: actions/checkout@v2
+
+      # Installing dependencies
+      - name: installing dependencies
+        run: yarn
+
+      # login to docker
+      - uses: azure/docker-login@v1
+        with:
+          username: ${{ secrets.M3NTORSHIP_DOCKERHUB_USERNAME }}
+          password: ${{ secrets.M3NTORSHIP_DOCKERHUB_PASSWORD }}
+
+      # build and push docker image
+      - name: build and push the app
+        run: |
+          echo $M3_VERSION
+          docker build -t $M3_IMAGE:$M3_VERSION -f $M3_DOCKER_FILE .
+          docker push $M3_IMAGE:$M3_VERSION
