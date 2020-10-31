@@ -30,8 +30,8 @@ spec:
               containerPort: {{{M3_PORT}}}
               protocol: TCP
           volumeMounts:
-            - name: '{{{M3_PROJECT}}}-{{{M3_COMPONENET}}}-dev-config-files'
-              mountPath: /pickly-posts/secrets
+            - name: '{{{M3_PROJECT}}}-{{{M3_COMPONENET}}}-{{{M3_ENVIRONMENT}}}-config-files'
+              mountPath: '{{{M3_DECRYPTED_SECRETS_VOLUME_DIR}}}'
           resources:
             requests:
               memory: "{{{M3_MEMORY}}}"
@@ -40,6 +40,6 @@ spec:
               memory: "{{{M3_MEMORY}}}"
               cpu: "{{{M3_CPU}}}"
       volumes:
-        - name: '{{{M3_PROJECT}}}-{{{M3_COMPONENET}}}-dev-config-files'
+        - name: '{{{M3_PROJECT}}}-{{{M3_COMPONENET}}}-{{{M3_ENVIRONMENT}}}-config-files'
           configMap:
-            name: '{{{M3_PROJECT}}}-{{{M3_COMPONENET}}}-dev'
+            name: '{{{M3_PROJECT}}}-{{{M3_COMPONENET}}}-{{{M3_ENVIRONMENT}}}'
