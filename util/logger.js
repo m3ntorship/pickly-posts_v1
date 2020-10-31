@@ -13,7 +13,7 @@ const logger = winston.createLogger({
     }),
     new winston.transports.File({
       filename: './logs/combined.log',
-      maxsize: '10000000'
+      maxsize: '100000000'
     })
   ]
 });
