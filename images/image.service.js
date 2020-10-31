@@ -15,7 +15,7 @@ const vote = async (imageVotes, user, userId, res, next) => {
 		imageVotes.voters.push(userId.toString());
 		imageVotes.count += 1;
 
-		await user.mongouser.vote(imageVotes.postId.toString());
+		await user.mongouser.upvote(imageVotes.postId.toString());
 		await imageVotes.save();
 
 		return res.json({
