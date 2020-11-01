@@ -3,6 +3,66 @@ const { Image, Resources } = require('../images/image.model');
 const catchAsync = require('../util/catchAsync');
 const isTruthy = require('../util/isTruthy');
 const AppError = require('../util/appError');
+const Votes = require('../images/votes.model');
+
+const populateData = async (voted, post) => {
+  await post.populate('author', 'name email userImage').execPopulate();
+  if (voted) {
+    await post
+      .populate({
+        path: 'resources',
+        model: 'resources',
+        select: '-_id -__v',
+        populate: {
+          path: 'images',
+          model: 'image',
+          select: 'name url',
+          populate: {
+            path: 'votes',
+            model: 'Votes',
+            select: 'count  updatedAt'
+          }
+        }
+      })
+      .execPopulate();
+  } else {
+    await post
+      .populate({
+        path: 'resources',
+        model: 'resources',
+        select: '-_id -__v',
+        populate: {
+          path: 'images',
+          model: 'image',
+          select: 'name url'
+        }
+      })
+      .execPopulate();
+  }
+  return post;
+};
+
+const isVotedByCurrUser = async (userId, post) => {
+  for (const i in post.resources.images) {
+    const userVotedImage = await Votes.findOne({
+      image: post.resources.images[i]._id,
+      voters: { $in: userId }
+    }).select('image');
+    if (userVotedImage) {
+      post.resources.images[i].votedByUser = true;
+      continue;
+    }
+  }
+  return post;
+};
+
+const setPostBusinessProperties = async (post, user) => {
+  post.setVoted(user);
+  post = await populateData(post.Voted, post);
+  post = post.toJSON();
+  post = await isVotedByCurrUser(user._id, post);
+  return post;
+};
 
 exports.postService = {
   create() {
@@ -19,78 +79,40 @@ exports.postService = {
       });
 
       const imagesIds = images.map(image => image._id);
-
       const resources = await Resources.create({ images: imagesIds });
       const { isAnonymous, caption } = req.body;
       const isAnonymousBoolean = isTruthy(isAnonymous);
       const user = req.user.mongouser;
 
-      const doc = await Post.create({
+      const post = await Post.create({
         caption,
         resources: resources._id,
         author: user._id,
         isAnonymous: isAnonymousBoolean
       });
-      req.user.mongouser.posts.push(doc._id);
+      req.user.mongouser.posts.push(post._id);
       await req.user.mongouser.save();
 
       images.forEach(async img => {
-        img.postId = doc._id;
+        img.postId = post._id;
         await img.save();
       });
-
       res.status(201).json({
         status: 'success',
-        data: doc.toJSONFor(req.user.mongouser)
+        post
       });
     });
   },
-  get(popOptions) {
+  get() {
     return catchAsync(async (req, res, next) => {
-      let query = Post.findById(req.params.id);
-      let doc = await query;
-
-      if (!doc) {
+      let post = await Post.findById(req.params.id);
+      if (!post) {
         return next(new AppError('No document found with that ID', 404));
       }
-
-      if (doc.author) {
-        await doc.populate('author', 'name email').execPopulate();
-      }
-
-      if (req.user.mongouser.isVoted(doc._id)) {
-        await doc
-          .populate({
-            path: popOptions,
-            model: 'resources',
-            populate: {
-              path: 'images',
-              model: 'image',
-              select: 'name url',
-              populate: {
-                path: 'votes',
-                model: 'Votes',
-                select: 'count  updatedAt'
-              }
-            }
-          })
-          .execPopulate();
-      } else {
-        await doc
-          .populate({
-            path: popOptions,
-            model: 'resources',
-            populate: {
-              path: 'images',
-              model: 'image',
-              select: 'name url'
-            }
-          })
-          .execPopulate();
-      }
+      post = await setPostBusinessProperties(post, req.user.mongouser);
       res.status(200).json({
         status: 'success',
-        data: doc.toJSONFor(req.user.mongouser)
+        post
       });
     });
   },
@@ -127,68 +149,17 @@ exports.postService = {
   },
   getAll(options) {
     return catchAsync(async (req, res, next) => {
-      let data = Post.find();
+      let posts = Post.find();
       if (options.getRecentFirst) {
-        data.sort('-createdAt');
+        posts.sort('-createdAt');
       }
-      if (options.populateResources) {
-        data.populate({
-          path: 'resources',
-          model: 'resources',
-          populate: {
-            path: 'images',
-            model: 'image',
-            select: 'name url'
-          }
-        });
-      }
-      if (options.populateAuthor) {
-        data.populate('author', 'name email');
-      }
-      data = await data;
-
-      if (!data) {
-        return next(new AppError('No Polls found with that ID', 404));
-      } else {
-        const dataWithVotes = await Promise.all(
-          data.map(async post => {
-            if (req.user.mongouser.isVoted(post._id)) {
-              await post
-                .populate({
-                  path: 'resources',
-                  model: 'resources',
-                  populate: {
-                    path: 'images',
-                    model: 'image',
-                    select: 'name url',
-                    populate: {
-                      path: 'votes',
-                      model: 'Votes',
-                      select: 'count image updatedAt'
-                    }
-                  }
-                })
-                .execPopulate();
-            } else {
-              await post
-                .populate({
-                  path: 'resources',
-                  model: 'resources',
-                  populate: {
-                    path: 'images',
-                    model: 'image',
-                    select: 'name url'
-                  }
-                })
-                .execPopulate();
-            }
-
-            const doc = post.toJSONFor(req.user.mongouser);
-            return doc;
-          })
-        );
-        res.status(200).json({ data: dataWithVotes });
-      }
+      posts = await posts;
+      posts = await Promise.all(
+        posts.map(async post => {
+          return setPostBusinessProperties(post, req.user.mongouser);
+        })
+      );
+      res.status(200).json({ data: posts });
     });
   }
 };
