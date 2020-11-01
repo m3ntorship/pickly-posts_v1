@@ -15,24 +15,24 @@ const postSchema = new mongoose.Schema(
       type: Boolean,
       default: false
     },
-    author: { type: mongoose.Schema.Types.ObjectId, ref: 'user' }
+    author: { type: mongoose.Schema.Types.ObjectId, ref: 'user' },
+    voted: Boolean
   },
-
   {
+    toJSON: {
+      transform: function (doc, ret) {
+        ret.author = ret.isAnonymous ? undefined : ret.author;
+        return ret;
+      }
+    },
+    virtuals: true,
     timestamps: true
   }
 );
 
-postSchema.methods.toJSONFor = function (user) {
-  return {
-    _id: this._id,
-    caption: this.caption,
-    resources: this.resources,
-    isAnonymous: this.isAnonymous,
-    author: this.isAnonymous ? undefined : this.author,
-    Voted: user ? user.isVoted(this._id) : false,
-    createdAt: this.createdAt
-  };
+postSchema.methods.setVoted = function (user) {
+  this.voted = user.isVoted(this._id);
 };
+
 const Post = mongoose.model('Post', postSchema);
 module.exports = Post;

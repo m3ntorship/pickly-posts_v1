@@ -6,73 +6,67 @@ const AppError = require('../util/appError');
 const Votes = require('../images/votes.model');
 
 exports.postService = {
-	create() {
-		return catchAsync(async (req, res, next) => {
-			if (!req.files.images) {
-				return next(
-					new AppError('Please Upload atleast one image', 400)
-				);
-			}
-			const images = req.files.images.map((image) => {
-				return new Image({
-					name: image.originalname.replace(' ', ''),
-					url: image.path,
-					provider: 'cloudinary',
-				});
-			});
-
-			const imagesIds = images.map((image) => image._id);
-
-			const resources = await Resources.create({ images: imagesIds });
-			const { isAnonymous, caption } = req.body;
-			const isAnonymousBoolean = isTruthy(isAnonymous);
-			const user = req.user.mongouser;
-
-			const doc = await Post.create({
-				caption,
-				resources: resources._id,
-				author: user._id,
-				
-				isAnonymous: isAnonymousBoolean,
+  create() {
+    return catchAsync(async (req, res, next) => {
+      if (!req.files.images) {
+        return next(new AppError('Please Upload atleast one image', 400));
+      }
+      const images = req.files.images.map(image => {
+        return new Image({
+          name: image.originalname.replace(' ', ''),
+          url: image.path,
+          provider: 'cloudinary'
+        });
       });
-      req.user.mongouser.posts.push(doc._id);
+
+      const imagesIds = images.map(image => image._id);
+
+      const resources = await Resources.create({ images: imagesIds });
+      const { isAnonymous, caption } = req.body;
+      const isAnonymousBoolean = isTruthy(isAnonymous);
+      const user = req.user.mongouser;
+
+      const post = await Post.create({
+        caption,
+        resources: resources._id,
+        author: user._id,
+        isAnonymous: isAnonymousBoolean
+      });
+      req.user.mongouser.posts.push(post._id);
       await req.user.mongouser.save();
 
       images.forEach(async img => {
-        img.postId = doc._id;
+        img.postId = post._id;
         await img.save();
       });
-
       res.status(201).json({
         status: 'success',
-        data: doc.toJSONFor(req.user.mongouser)
+        post
       });
     });
   },
   get(popOptions) {
     return catchAsync(async (req, res, next) => {
-      let query = Post.findById(req.params.id);
+      let post = await Post.findById(req.params.id);
 
       const votedImage = await Votes.findOne({
-        postId: (await query)._id,
+        postId: post._id,
         voters: { $in: req.user.mongouser._id }
       }).select('image');
-      let doc = await query;
 
-      if (!doc) {
+      if (!post) {
         return next(new AppError('No document found with that ID', 404));
       }
 
-      if (doc.author) {
-        await doc.populate('author', 'name email').execPopulate();
+      if (post.author) {
+        await post.populate('author', 'name email').execPopulate();
       }
-
-      if (req.user.mongouser.isVoted(doc._id)) {
-        await doc
+      if (req.user.mongouser.isVoted(post._id)) {
+        await post
           .populate({
             path: popOptions,
-						model: 'resources',
-						select: '-_id -__v',
+            model: 'resources',
+            select: '-_id -__v',
             populate: {
               path: 'images',
               model: 'image',
@@ -86,11 +80,11 @@ exports.postService = {
           })
           .execPopulate();
       } else {
-        await doc
+        await post
           .populate({
             path: popOptions,
-						model: 'resources',
-						select: '-_id -__v',
+            model: 'resources',
+            select: '-_id -__v',
             populate: {
               path: 'images',
               model: 'image',
@@ -99,39 +93,32 @@ exports.postService = {
           })
           .execPopulate();
       }
-      let data = null;
+      post.setVoted(req.user.mongouser);
       if (votedImage) {
-        data = JSON.parse(JSON.stringify(doc.toJSONFor(req.user.mongouser)));
-        data.resources.images.forEach((image, index) => {
-          if (image._id.toString() === votedImage.image.toString()) {
-            data.resources.images[index].votedByUser = true;
-          } else {
-            data.resources.images[index].votedByUser = false;
-          }
+        post = post.toJSON();
+        post.resources.images.forEach((image, index) => {
+          post.resources.images[index].votedByUser =
+            image._id.toString() === votedImage.image.toString();
         });
-      } else {
-        data = doc.toJSONFor(req.user.mongouser);
       }
       res.status(200).json({
         status: 'success',
-        data
+        post
       });
     });
   },
   update() {
     return catchAsync(async (req, res, next) => {
-      const doc = await Post.findByIdAndUpdate(req.params.id, req.body, {
+      const post = await Post.findByIdAndUpdate(req.params.id, req.body, {
         new: true,
         runValidators: true
       });
-      if (!doc) {
+      if (!post) {
         return next(new AppError('No document found with that ID', 404));
       }
       res.status(200).json({
         status: 'success',
-        data: {
-          data: doc.toJSONFor(req.user.mongouser)
-        }
+        data: post
       });
     });
   },
@@ -151,7 +138,6 @@ exports.postService = {
         voters: { $in: req.user.mongouser._id }
       })
         .select('image')
-        .exec();
 
       if (options.getRecentFirst) {
         data.sort('-createdAt');
@@ -159,8 +145,8 @@ exports.postService = {
       if (options.populateResources) {
         data.populate({
           path: 'resources',
-					model: 'resources',
-					select: '-_id -__v',
+          model: 'resources',
+          select: '-_id -__v',
           populate: {
             path: 'images',
             model: 'image',
@@ -181,8 +167,8 @@ exports.postService = {
               await post
                 .populate({
                   path: 'resources',
-									model: 'resources',
-									select: '-_id -__v',
+                  model: 'resources',
+                  select: '-_id -__v',
                   populate: {
                     path: 'images',
                     model: 'image',
@@ -199,8 +185,8 @@ exports.postService = {
               await post
                 .populate({
                   path: 'resources',
-									model: 'resources',
-									select: '-_id -__v',
+                  model: 'resources',
+                  select: '-_id -__v',
                   populate: {
                     path: 'images',
                     model: 'image',
@@ -209,9 +195,8 @@ exports.postService = {
                 })
                 .execPopulate();
             }
-
-            const doc = post.toJSONFor(req.user.mongouser);
-            return doc;
+            post.setVoted(req.user.mongouser);
+            return post;
           })
         );
 
