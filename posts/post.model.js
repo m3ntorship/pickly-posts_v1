@@ -16,7 +16,7 @@ const postSchema = new mongoose.Schema(
       default: false
     },
     author: { type: mongoose.Schema.Types.ObjectId, ref: 'user' },
-    voted: Boolean
+    Voted: Boolean
   },
   {
     toJSON: {
@@ -31,7 +31,7 @@ const postSchema = new mongoose.Schema(
 );
 
 postSchema.methods.setVoted = function (user) {
-  this.voted = user.isVoted(this._id);
+  this.Voted = user.isVoted(this._id);
 };
 
 const Post = mongoose.model('Post', postSchema);
