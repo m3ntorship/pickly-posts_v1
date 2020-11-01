@@ -103,6 +103,6 @@ dist
 
 # TernJS port file
 .tern-port
-service-account.json
 package-lock.json
-secrets
+
+secrets/*

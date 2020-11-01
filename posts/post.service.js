@@ -29,7 +29,6 @@ exports.postService = {
         caption,
         resources: resources._id,
         author: user._id,
-
         isAnonymous: isAnonymousBoolean
       });
       req.user.mongouser.posts.push(doc._id);
@@ -117,7 +116,7 @@ exports.postService = {
     return catchAsync(async (req, res, next) => {
       const query = await Post.findById(req.params.id);
       if (query) {
-        if (String(query.get('author')) === String(req.user.mongouser._id)) {
+        if (query.author.toString() === req.user.mongouser._id.toString()) {
           await Post.deleteOne({ _id: req.params.id });
           return res.status(204).send();
         }
