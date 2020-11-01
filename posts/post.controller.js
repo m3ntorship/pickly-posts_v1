@@ -9,5 +9,4 @@ exports.updatePost = postService.update();
 exports.deletePost = postService.delete();
 exports.getAllPosts = postService.getAll({
 	getRecentFirst: true,
-	populateAuthor: true,
 });

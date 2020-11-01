@@ -5,7 +5,8 @@ const isTruthy = require('../util/isTruthy');
 const AppError = require('../util/appError');
 const Votes = require('../images/votes.model');
 
-const populateResources = async (voted, post) => {
+const populateData = async (voted, post) => {
+  await post.populate('author', 'name email userImage').execPopulate();
   if (voted) {
     await post
       .populate({
@@ -57,7 +58,7 @@ const isVotedByCurrUser = async (userId, post) => {
 
 const setPostBusinessProperties = async (post, user) => {
   post.setVoted(user);
-  post = await populateResources(post.Voted, post);
+  post = await populateData(post.Voted, post);
   post = post.toJSON();
   post = await isVotedByCurrUser(user._id, post);
   return post;
@@ -105,16 +106,10 @@ exports.postService = {
   get() {
     return catchAsync(async (req, res, next) => {
       let post = await Post.findById(req.params.id);
-
       if (!post) {
         return next(new AppError('No document found with that ID', 404));
       }
-
-      if (post.author) {
-        await post.populate('author', 'name email').execPopulate();
-      }
       post = await setPostBusinessProperties(post, req.user.mongouser);
-
       res.status(200).json({
         status: 'success',
         post
@@ -147,15 +142,10 @@ exports.postService = {
   getAll(options) {
     return catchAsync(async (req, res, next) => {
       let posts = Post.find();
-
       if (options.getRecentFirst) {
         posts.sort('-createdAt');
       }
-      if (options.populateAuthor) {
-        posts.populate('author', 'name email');
-      }
       posts = await posts;
-
       posts = await Promise.all(
         posts.map(async post => {
           return setPostBusinessProperties(post, req.user.mongouser);
