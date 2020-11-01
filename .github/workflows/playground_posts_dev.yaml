@@ -1,0 +1,137 @@
+name: deploy posts service PR to playground cluster
+
+# trigger
+on:
+  push:
+    branches:
+      - develop
+      - playground-deployment-posts
+env:
+  # COMMON deployment envs
+  M3_ORGANIZATION: ${{github.event.organization.login}}
+  M3_REPOSITORY: ${{github.event.repository.name}}
+  M3_PROJECT: pickly
+  M3_COMPONENET: posts
+  M3_ENVIRONMENT: 'dev'
+  M3_NAMESPACE: '${{github.event.organization.login}}-${{github.event.repository.name}}-dev'
+  M3_DEPLOYMENT_PATH: deploy/dev/posts
+  M3_DECRYPTED_SECRETS_VOLUME_DIR: /pickly-posts/secrets
+  M3_TEMP_DIR: temp
+  M3_REPLICAS: '1'
+  # posts service
+  M3_DOCKER_FILE: Dockerfile
+  M3_IMAGE: m3ntorshipci/pickly-posts
+  M3_PORT: '3001'
+  M3_MEMORY: '200Mi'
+  M3_CPU: '250m'
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v2
+      # dynamic deployment envs
+      - name: set templating envs
+        id: version
+        run: |
+          echo ::set-output name=version::$(git rev-parse --short=4 ${{ github.sha }})
+  test-env:
+    needs: prepare
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo ${{ needs.prepare.outputs.version }}
+  build_service:
+    if: ${{github.event.action != 'closed'}}
+    needs: prepare
+    runs-on: ubuntu-latest
+    env:
+      M3_VERSION: ${{ needs.prepare.outputs.version }}
+
+    steps:
+      # checkout the code commit
+      - name: checkout the code
+        uses: actions/checkout@v2
+
+      # Installing dependencies
+      - name: installing dependencies
+        run: yarn
+
+      # login to docker
+      - uses: azure/docker-login@v1
+        with:
+          username: ${{ secrets.M3NTORSHIP_DOCKERHUB_USERNAME }}
+          password: ${{ secrets.M3NTORSHIP_DOCKERHUB_PASSWORD }}
+
+      # build and push docker image
+      - name: build and push the app
+        run: |
+          echo $M3_VERSION
+          docker build -t $M3_IMAGE:$M3_VERSION -f $M3_DOCKER_FILE .
+          docker push $M3_IMAGE:$M3_VERSION
+  deploy_dev:
+    if: ${{github.event.action != 'closed'}}
+    needs:
+      - build_service
+      - prepare
+
+    runs-on: ubuntu-latest
+    env:
+      M3_VERSION: ${{ needs.prepare.outputs.version }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: azure/setup-kubectl@v1
+      - name: Kubectl configuration
+        run: |
+          mkdir -p ~/.kube
+          echo ${{ secrets.KUBE_CONFIG }} | base64 -d -i > ~/.kube/config
+      - name: install moustache
+        run: |
+          curl -sSL https://git.io/get-mo -o mo
+          chmod +x mo
+          sudo mv mo /usr/local/bin
+          echo "works" | mo
+      
+      - name: deployment-preparation
+        run: |
+          echo $M3_NAMESPACE
+          mkdir -p $M3_TEMP_DIR
+          
+      # decrypt secrets
+      - name: decrypt-secrets
+        env:
+          M3_TEMP_SECRETS_DIR: temp-secrets
+          M3_ENCRYPTION_PHRASE: ${{secrets.M3NTORSHIP_ENCRYPTION_PHRASE}}
+          M3_ENCRYPTED_SECRETS_DIR: secrets
+          
+        run: |
+          mkdir -p $M3_TEMP_SECRETS_DIR
+          for f in $(find $M3_DEPLOYMENT_PATH/$M3_ENCRYPTED_SECRETS_DIR -maxdepth 1 -type f); do gpg --quiet --batch --yes --decrypt --passphrase="$M3_ENCRYPTION_PHRASE" "$f" > "$M3_TEMP_SECRETS_DIR/$(basename -s .gpg $f)"; done
+          kubectl create configmap $M3_PROJECT-$M3_COMPONENET-$M3_ENVIRONMENT --from-file=$M3_TEMP_SECRETS_DIR/ -o yaml -n $M3_NAMESPACE --dry-run > $M3_TEMP_DIR/configmap.yaml
+          
+      # deploy dev
+      - name: deploy-dev
+        run: |
+          for f in $M3_DEPLOYMENT_PATH/apply/*; do mo -u "$f" > $M3_TEMP_DIR/"$(basename $f)"; done
+          kubectl apply -f $M3_TEMP_DIR
+      
+      #cleanup temp directories
+      - name: clean-temp-files
+        run: rm -rf $M3_TEMP_DIR $M3_TEMP_SECRETS_DIR
+
+  cleanup_docker_tags:
+    if: ${{github.event.action == 'closed'}}
+    needs:
+      - deploy_dev
+    runs-on: ubuntu-latest
+    steps:
+      - id: delete_old_tags
+        name: Delete old docker image tags
+        uses: m3ntorship/action-dockerhub-cleanup@1.2
+        with:
+          token: ${{secrets.DOCKER_HUB_M3NTORSHIPCI_TOKEN}}
+          user: 'm3ntorshipci'
+          repos: '["pickly-posts"]'
+          keep-last: 10
+          substrings: '["pr-${{ github.event.number }}"]'
