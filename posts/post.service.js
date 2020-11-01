@@ -5,6 +5,42 @@ const isTruthy = require('../util/isTruthy');
 const AppError = require('../util/appError');
 const Votes = require('../images/votes.model');
 
+const populateResources = async (voted, post) => {
+  if (voted) {
+    await post
+      .populate({
+        path: 'resources',
+        model: 'resources',
+        select: '-_id -__v',
+        populate: {
+          path: 'images',
+          model: 'image',
+          select: 'name url',
+          populate: {
+            path: 'votes',
+            model: 'Votes',
+            select: 'count  updatedAt'
+          }
+        }
+      })
+      .execPopulate();
+  } else {
+    await post
+      .populate({
+        path: 'resources',
+        model: 'resources',
+        select: '-_id -__v',
+        populate: {
+          path: 'images',
+          model: 'image',
+          select: 'name url'
+        }
+      })
+      .execPopulate();
+  }
+  return post;
+};
+
 exports.postService = {
   create() {
     return catchAsync(async (req, res, next) => {
@@ -20,7 +56,6 @@ exports.postService = {
       });
 
       const imagesIds = images.map(image => image._id);
-
       const resources = await Resources.create({ images: imagesIds });
       const { isAnonymous, caption } = req.body;
       const isAnonymousBoolean = isTruthy(isAnonymous);
@@ -45,7 +80,7 @@ exports.postService = {
       });
     });
   },
-  get(popOptions) {
+  get() {
     return catchAsync(async (req, res, next) => {
       let post = await Post.findById(req.params.id);
 
@@ -61,39 +96,8 @@ exports.postService = {
       if (post.author) {
         await post.populate('author', 'name email').execPopulate();
       }
-      if (req.user.mongouser.isVoted(post._id)) {
-        await post
-          .populate({
-            path: popOptions,
-            model: 'resources',
-            select: '-_id -__v',
-            populate: {
-              path: 'images',
-              model: 'image',
-              select: 'name url',
-              populate: {
-                path: 'votes',
-                model: 'Votes',
-                select: 'count  updatedAt'
-              }
-            }
-          })
-          .execPopulate();
-      } else {
-        await post
-          .populate({
-            path: popOptions,
-            model: 'resources',
-            select: '-_id -__v',
-            populate: {
-              path: 'images',
-              model: 'image',
-              select: 'name url'
-            }
-          })
-          .execPopulate();
-      }
       post.setVoted(req.user.mongouser);
+      post = await populateResources(post.Voted, post);
       if (votedImage) {
         post = post.toJSON();
         post.resources.images.forEach((image, index) => {
@@ -134,90 +138,42 @@ exports.postService = {
     return catchAsync(async (req, res, next) => {
       let data = Post.find();
 
-      let userVotedImages = await Votes.find({
-        voters: { $in: req.user.mongouser._id }
-      })
-        .select('image')
-
       if (options.getRecentFirst) {
         data.sort('-createdAt');
-      }
-      if (options.populateResources) {
-        data.populate({
-          path: 'resources',
-          model: 'resources',
-          select: '-_id -__v',
-          populate: {
-            path: 'images',
-            model: 'image',
-            select: 'name url'
-          }
-        });
       }
       if (options.populateAuthor) {
         data.populate('author', 'name email');
       }
       data = await data;
-      if (!data) {
-        return next(new AppError('No Polls found with that ID', 404));
-      } else {
-        let dataWithVotes = await Promise.all(
-          data.map(async post => {
-            if (req.user.mongouser.isVoted(post._id)) {
-              await post
-                .populate({
-                  path: 'resources',
-                  model: 'resources',
-                  select: '-_id -__v',
-                  populate: {
-                    path: 'images',
-                    model: 'image',
-                    select: 'name url',
-                    populate: {
-                      path: 'votes',
-                      model: 'Votes',
-                      select: 'count image updatedAt'
-                    }
-                  }
-                })
-                .execPopulate();
-            } else {
-              await post
-                .populate({
-                  path: 'resources',
-                  model: 'resources',
-                  select: '-_id -__v',
-                  populate: {
-                    path: 'images',
-                    model: 'image',
-                    select: 'name url'
-                  }
-                })
-                .execPopulate();
-            }
-            post.setVoted(req.user.mongouser);
-            return post;
-          })
-        );
 
-        dataWithVotes = dataWithVotes.map(post => {
-          post = JSON.parse(JSON.stringify(post));
-          post.resources.images.forEach((image, index) => {
-            if (
-              userVotedImages.find(
-                item => item.image.toString() === image._id.toString()
-              )
-            ) {
-              post.resources.images[index].votedByUser = true;
-            } else {
-              post.resources.images[index].votedByUser = false;
-            }
-          });
+      let dataWithVotes = await Promise.all(
+        data.map(async post => {
+          post.setVoted(req.user.mongouser);
+          post = await populateResources(post.Voted, post);
           return post;
-        });
+        })
+      );
+      let userVotedImages = await Votes.find({
+        voters: { $in: req.user.mongouser._id }
+      }).select('image');
 
-        res.status(200).json({ data: dataWithVotes });
-      }
+      dataWithVotes = dataWithVotes.map(post => {
+        post = post.toJSON();
+        post.resources.images.forEach((image, index) => {
+          if (
+            userVotedImages.find(
+              item => item.image.toString() === image._id.toString()
+            )
+          ) {
+            post.resources.images[index].votedByUser = true;
+          } else {
+            post.resources.images[index].votedByUser = false;
+          }
+        });
+        return post;
+      });
+
+      res.status(200).json({ data: dataWithVotes });
     });
   }
 };
