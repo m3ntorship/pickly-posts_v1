@@ -9,11 +9,11 @@ const logger = winston.createLogger({
     new winston.transports.File({
       filename: './logs/error.log',
       level: 'error',
-      maxsize: '10000000'
+      maxsize: '100000000' // 100 mb in bytes
     }),
     new winston.transports.File({
       filename: './logs/combined.log',
-      maxsize: '100000000'
+      maxsize: '100000000' // 100 mb in bytes
     })
   ]
 });

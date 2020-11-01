@@ -40,7 +40,8 @@ app.use('/images', imageRouter);
 
 app.use(
   expressWinston.errorLogger({
-    winstonInstance: logger
+    winstonInstance: logger,
+    meta: false
   })
 );
 
