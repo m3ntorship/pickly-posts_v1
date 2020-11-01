@@ -1,5 +1,6 @@
 FROM node:alpine3.12
-WORKDIR /pickly-backend
+WORKDIR /pickly-posts
 COPY . .
-RUN yarn
+
+RUN yarn --ignore-engines
 CMD ["node", "server.js"]
