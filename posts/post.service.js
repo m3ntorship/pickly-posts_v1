@@ -56,11 +56,19 @@ const isVotedByCurrUser = async (userId, post) => {
   return post;
 };
 
+const isOwnedByCurrentUser = async (userId, post) => {
+  const query = await Post.findById(post._id);
+  const ownedByCurrentUser = userId.toString() === query.author.toString();
+  post.ownedByCurrentUser = ownedByCurrentUser;
+  return post;
+};
+
 const setPostBusinessProperties = async (post, user) => {
   post.setVoted(user);
   post = await populateData(post.Voted, post);
   post = post.toJSON();
   post = await isVotedByCurrUser(user._id, post);
+  post = await isOwnedByCurrentUser(user._id, post);
   return post;
 };
 
