@@ -13,6 +13,8 @@ spec:
   selector:
     application: '{{{M3_PROJECT}}}-{{{M3_COMPONENET}}}-{{{M3_ENVIRONMENT}}}'
   ports:
-    - protocol: TCP
-      port: 80
+    - name: web
+      protocol: TCP
+      port: {{{M3_PORT}}}
       targetPort: {{{M3_PORT}}}
+    

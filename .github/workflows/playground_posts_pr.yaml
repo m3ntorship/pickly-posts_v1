@@ -1,0 +1,241 @@
+name: deploy posts service PR to playground cluster
+
+# trigger
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+    branches:
+      - develop
+env:
+  # COMMON deployment envs
+  M3_ORGANIZATION: ${{github.event.organization.login}}
+  M3_REPOSITORY: ${{github.event.repository.name}}
+  M3_PROJECT: pickly
+  M3_COMPONENET: posts
+  M3_ENVIRONMENT: 'pr-${{ github.event.number }}'
+  M3_VERSION: 'pr-${{ github.event.number }}-${{ github.run_number}}'
+  M3_NAMESPACE: '${{github.event.organization.login}}-${{github.event.repository.name}}-pr-${{ github.event.number }}'
+  M3_DEPLOYMENT_PATH: deploy/dev/posts
+  M3_DECRYPTED_SECRETS_VOLUME_DIR: /pickly-posts/secrets
+  M3_TEMP_DIR: temp
+  M3_REPLICAS: '1'
+  # posts service
+  M3_DOCKER_FILE: Dockerfile
+  M3_IMAGE: m3ntorshipci/pickly-posts
+  M3_PORT: '3001'
+  M3_MEMORY: '200Mi'
+  M3_CPU: '250m'
+
+jobs:
+  build_service:
+    if: ${{github.event.action != 'closed'}}
+    runs-on: ubuntu-latest
+    steps:
+      # checkout the code commit
+      - name: checkout the code
+        uses: actions/checkout@v2
+
+      # Installing dependencies
+      - name: installing dependencies
+        run: yarn
+
+      # login to docker
+      - uses: azure/docker-login@v1
+        with:
+          username: ${{ secrets.M3NTORSHIP_DOCKERHUB_USERNAME }}
+          password: ${{ secrets.M3NTORSHIP_DOCKERHUB_PASSWORD }}
+
+      # build and push docker image
+      - name: build and push the app
+        run: |
+          echo $M3_VERSION
+          docker build -t $M3_IMAGE:$M3_VERSION -f $M3_DOCKER_FILE .
+          docker push $M3_IMAGE:$M3_VERSION
+  deploy_pr:
+    if: ${{github.event.action != 'closed'}}
+    needs:
+      - build_service
+
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: azure/setup-kubectl@v1
+      - name: Kubectl configuration
+        run: |
+          mkdir -p ~/.kube
+          echo ${{ secrets.KUBE_CONFIG }} | base64 -d -i > ~/.kube/config
+      - name: install moustache
+        run: |
+          curl -sSL https://git.io/get-mo -o mo
+          chmod +x mo
+          sudo mv mo /usr/local/bin
+          echo "works" | mo
+      
+      - name: deployment-preparation
+        run: |
+          echo $M3_NAMESPACE
+          mkdir -p $M3_TEMP_DIR
+          
+      # decrypt secrets
+      - name: decrypt-secrets
+        env:
+          M3_TEMP_SECRETS_DIR: temp-secrets
+          M3_ENCRYPTION_PHRASE: ${{secrets.M3NTORSHIP_ENCRYPTION_PHRASE}}
+          M3_ENCRYPTED_SECRETS_DIR: secrets
+          
+        run: |
+          mkdir -p $M3_TEMP_SECRETS_DIR
+          for f in $(find $M3_DEPLOYMENT_PATH/$M3_ENCRYPTED_SECRETS_DIR -maxdepth 1 -type f); do gpg --quiet --batch --yes --decrypt --passphrase="$M3_ENCRYPTION_PHRASE" "$f" > "$M3_TEMP_SECRETS_DIR/$(basename -s .gpg $f)"; done
+          kubectl create configmap $M3_PROJECT-$M3_COMPONENET-$M3_ENVIRONMENT --from-file=$M3_TEMP_SECRETS_DIR/ -o yaml -n $M3_NAMESPACE --dry-run > $M3_TEMP_DIR/configmap.yaml
+          
+      # deploy pr
+      - name: deploy-pr
+        run: |
+          for f in $M3_DEPLOYMENT_PATH/apply/*; do mo -u "$f" > $M3_TEMP_DIR/"$(basename $f)"; done
+          kubectl apply -f $M3_TEMP_DIR
+      
+      #cleanup temp directories
+      - name: clean-temp-files
+        run: rm -rf $M3_TEMP_DIR $M3_TEMP_SECRETS_DIR
+      
+      #comment on PR
+      - name: comment PR with deployment links
+        if: ${{github.event.action != 'closed'}}
+        uses: unsplash/comment-on-pr@master
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          msg: >-
+            Start deploying your feature branch, visit
+            [posts](https://pickly-posts-be-pr-${{ github.event.number }}.m3ntorship.net/health)
+          check_for_duplicate_msg: true
+
+  undeploy_pr:
+    if: ${{github.event.action == 'closed'}}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: azure/setup-kubectl@v1
+      - name: Kubectl configuration
+        run: |
+          mkdir -p ~/.kubename: deploy posts service PR to playground cluster
+
+          # trigger
+          on:
+            pull_request:
+              types: [opened, synchronize, reopened, closed]
+              branches:
+                - developname: deploy posts service PR to playground cluster
+
+                # trigger
+                on:
+                  pull_request:
+                    types: [opened, synchronize, reopened, closed]
+                    branches:
+                      - develop
+                env:
+                  # COMMON deployment envs
+                  M3_ORGANIZATION: ${{github.event.organization.login}}
+                  M3_REPOSITORY: ${{github.event.repository.name}}
+                  M3_PROJECT: pickly
+                  M3_COMPONENET: posts
+                  M3_ENVIRONMENT: 'pr-${{ github.event.number }}'
+                  M3_VERSION: 'pr-${{ github.event.number }}-${{ github.run_number}}'
+                  M3_NAMESPACE: '${{github.event.organization.login}}-${{github.event.repository.name}}-pr-${{ github.event.number }}'
+                  M3_DEPLOYMENT_PATH: deploy/dev/posts
+                  M3_DECRYPTED_SECRETS_VOLUME_DIR: /pickly-posts/secrets
+                  M3_TEMP_DIR: temp
+                  M3_REPLICAS: '1'
+                  # posts service
+                  M3_DOCKER_FILE: Dockerfile
+                  M3_IMAGE: m3ntorshipci/pickly-posts
+                  M3_PORT: '3001'
+                  M3_MEMORY: '200Mi'
+                  M3_CPU: '250m'
+                
+                jobs:
+                  deploy_pr:
+                    runs-on: ubuntu-latest
+                    steps:
+                      - uses: actions/checkout@v2
+                      
+                      - name: deployment-preparation
+                        run: |
+                          echo $M3_NAMESPACE
+                          mkdir -p $M3_TEMP_DIR
+                          mkdir -p $M3_TEMP_SECRETS_DIR
+                          for f in $M3_DEPLOYMENT_PATH/$M3_ENCRYPTED_SECRETS_DIR/{.*,*}; do echo $f; done
+                          echo '-----------------'
+                          for f in $M3_DEPLOYMENT_PATH/$M3_ENCRYPTED_SECRETS_DIR/*; do echo $f; done
+                          echo '-----------------'
+                          for f in $M3_DEPLOYMENT_PATH/$M3_ENCRYPTED_SECRETS_DIR/*.*; do echo $f; done
+          env:
+            # COMMON deployment envs
+            M3_ORGANIZATION: ${{github.event.organization.login}}
+            M3_REPOSITORY: ${{github.event.repository.name}}
+            M3_PROJECT: pickly
+            M3_COMPONENET: posts
+            M3_ENVIRONMENT: 'pr-${{ github.event.number }}'
+            M3_VERSION: 'pr-${{ github.event.number }}-${{ github.run_number}}'
+            M3_NAMESPACE: '${{github.event.organization.login}}-${{github.event.repository.name}}-pr-${{ github.event.number }}'
+            M3_DEPLOYMENT_PATH: deploy/dev/posts
+            M3_DECRYPTED_SECRETS_VOLUME_DIR: /pickly-posts/secrets
+            M3_TEMP_DIR: temp
+            M3_REPLICAS: '1'
+            # posts service
+            M3_DOCKER_FILE: Dockerfile
+            M3_IMAGE: m3ntorshipci/pickly-posts
+            M3_PORT: '3001'
+            M3_MEMORY: '200Mi'
+            M3_CPU: '250m'
+          
+          jobs:
+            deploy_pr:
+              runs-on: ubuntu-latest
+              steps:
+                - uses: actions/checkout@v2
+                
+                - name: deployment-preparation
+                  run: |
+                    echo $M3_NAMESPACE
+                    mkdir -p $M3_TEMP_DIR
+                    mkdir -p $M3_TEMP_SECRETS_DIR
+                    for f in $M3_DEPLOYMENT_PATH/$M3_ENCRYPTED_SECRETS_DIR/{.*,*}; do echo $f; done
+                    echo '-----------------'
+                    for f in $M3_DEPLOYMENT_PATH/$M3_ENCRYPTED_SECRETS_DIR/*; do echo $f; done
+                    echo '-----------------'
+                    for f in $M3_DEPLOYMENT_PATH/$M3_ENCRYPTED_SECRETS_DIR/*.*; do echo $f; doneG }} | base64 -d -i > ~/.kube/config
+      # undeploy pr
+      - name: undeploy-pr
+        run: kubectl delete namespace $M3_NAMESPACE --ignore-not-found
+  cleanup_docker_tags:
+    if: ${{github.event.action == 'closed'}}
+    needs:
+      - undeploy_pr
+    runs-on: ubuntu-latest
+    steps:
+      - id: delete_old_tags
+        name: Delete old docker image tags
+        uses: m3ntorship/action-dockerhub-cleanup@1.2
+        with:
+          token: ${{secrets.DOCKER_HUB_M3NTORSHIPCI_TOKEN}}
+          user: 'm3ntorshipci'
+
+          # because we are building and pushing docker image
+          # per workflow run, we also delete the tags from this repo
+          repos: '["pickly-posts"]'
+
+          # because in this workflow, we produce temp docker image (pickly-posts)
+          # to be deployed for the lifetime of a PR, when we clean up, we are deleting all tags
+          # produced by all pushes to that particular PR, so here we specify three arguments to the
+          # action (keep-last, force-full-cleanup, and substrings), the combination of these three
+          # paramaters makes it delete all the temporarly created images
+          keep-last: 0
+          force-full-cleanup: true
+
+          # we are deleting all docker tags which start with the
+          # version prefix for example, the version above is constructed
+          # by concatinating the string `pr`, `pr_number` and `pr_run_number`
+          # 'pr-${{ github.event.number }}-${{ github.run_number}}'
+          # means the tags will be be `pr-82-1`, `pr-82-20` .. and so on
+          # so here we are deleting any tag that contains  `pr-82` in its name
+          substrings: '["pr-${{ github.event.number }}"]'
