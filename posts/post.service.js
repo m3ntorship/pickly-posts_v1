@@ -118,25 +118,33 @@ exports.postService = {
   },
   update() {
     return catchAsync(async (req, res, next) => {
-      const post = await Post.findByIdAndUpdate(req.params.id, req.body, {
+      const doc = await Post.findByIdAndUpdate(req.params.id, req.body, {
         new: true,
         runValidators: true
       });
-      if (!post) {
+
+      if (!doc) {
         return next(new AppError('No document found with that ID', 404));
       }
       res.status(200).json({
         status: 'success',
-        data: post
+        data: {
+          data: doc.toJSONFor(req.user.mongouser)
+        }
       });
     });
   },
   delete() {
     return catchAsync(async (req, res, next) => {
-      const doc = await Post.deleteOne({ _id: req.params.id });
-      if (!doc.deletedCount)
-        return next(new AppError('cannot find doc with that id', 404));
-      res.status(204).send();
+      const query = await Post.findById(req.params.id);
+      if (query) {
+        if (query.author.toString() === req.user.mongouser._id.toString()) {
+          await Post.deleteOne({ _id: req.params.id });
+          return res.status(204).send();
+        }
+        return next(new AppError("Only post's owner can delete it", 403));
+      }
+      return next(new AppError('cannot find doc with that id', 404));
     });
   },
   getAll(options) {

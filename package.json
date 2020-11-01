@@ -9,6 +9,7 @@
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "express-mongo-sanitize": "^2.0.0",
+    "express-winston": "^4.0.5",
     "firebase-admin": "^9.2.0",
     "googleapis": "^61.0.0",
     "helmet": "^4.1.1",
@@ -20,6 +21,7 @@
     "nodemon": "^2.0.4",
     "uuid": "^8.3.1",
     "validator": "^13.1.17",
+    "winston": "^3.3.3",
     "xss-clean": "^0.1.1"
   }
 }
