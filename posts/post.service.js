@@ -155,7 +155,7 @@ exports.postService = {
         posts.populate('author', 'name email');
       }
       posts = await posts;
-      
+
       posts = await Promise.all(
         posts.map(async post => {
           return setPostBusinessProperties(post, req.user.mongouser);
