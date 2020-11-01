@@ -41,6 +41,28 @@ const populateResources = async (voted, post) => {
   return post;
 };
 
+const isVotedByCurrUser = async (userId, post) => {
+  for (const i in post.resources.images) {
+    const userVotedImage = await Votes.findOne({
+      image: post.resources.images[i]._id,
+      voters: { $in: userId }
+    }).select('image');
+    if (userVotedImage) {
+      post.resources.images[i].votedByUser = true;
+      continue;
+    }
+  }
+  return post;
+};
+
+const setPostBusinessProperties = async (post, user) => {
+  post.setVoted(user);
+  post = await populateResources(post.Voted, post);
+  post = post.toJSON();
+  post = await isVotedByCurrUser(user._id, post);
+  return post;
+};
+
 exports.postService = {
   create() {
     return catchAsync(async (req, res, next) => {
@@ -84,11 +106,6 @@ exports.postService = {
     return catchAsync(async (req, res, next) => {
       let post = await Post.findById(req.params.id);
 
-      const votedImage = await Votes.findOne({
-        postId: post._id,
-        voters: { $in: req.user.mongouser._id }
-      }).select('image');
-
       if (!post) {
         return next(new AppError('No document found with that ID', 404));
       }
@@ -96,15 +113,8 @@ exports.postService = {
       if (post.author) {
         await post.populate('author', 'name email').execPopulate();
       }
-      post.setVoted(req.user.mongouser);
-      post = await populateResources(post.Voted, post);
-      if (votedImage) {
-        post = post.toJSON();
-        post.resources.images.forEach((image, index) => {
-          post.resources.images[index].votedByUser =
-            image._id.toString() === votedImage.image.toString();
-        });
-      }
+      post = await setPostBusinessProperties(post, req.user.mongouser);
+
       res.status(200).json({
         status: 'success',
         post
@@ -136,44 +146,22 @@ exports.postService = {
   },
   getAll(options) {
     return catchAsync(async (req, res, next) => {
-      let data = Post.find();
+      let posts = Post.find();
 
       if (options.getRecentFirst) {
-        data.sort('-createdAt');
+        posts.sort('-createdAt');
       }
       if (options.populateAuthor) {
-        data.populate('author', 'name email');
+        posts.populate('author', 'name email');
       }
-      data = await data;
-
-      let dataWithVotes = await Promise.all(
-        data.map(async post => {
-          post.setVoted(req.user.mongouser);
-          post = await populateResources(post.Voted, post);
-          return post;
+      posts = await posts;
+      
+      posts = await Promise.all(
+        posts.map(async post => {
+          return setPostBusinessProperties(post, req.user.mongouser);
         })
       );
-      let userVotedImages = await Votes.find({
-        voters: { $in: req.user.mongouser._id }
-      }).select('image');
-
-      dataWithVotes = dataWithVotes.map(post => {
-        post = post.toJSON();
-        post.resources.images.forEach((image, index) => {
-          if (
-            userVotedImages.find(
-              item => item.image.toString() === image._id.toString()
-            )
-          ) {
-            post.resources.images[index].votedByUser = true;
-          } else {
-            post.resources.images[index].votedByUser = false;
-          }
-        });
-        return post;
-      });
-
-      res.status(200).json({ data: dataWithVotes });
+      res.status(200).json({ data: posts });
     });
   }
 };
