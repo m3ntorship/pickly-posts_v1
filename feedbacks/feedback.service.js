@@ -2,7 +2,7 @@ const Feedback = require('./feedback.model');
 const catchAsync = require('../util/catchAsync');
 const schema = require('./feeedback.schema');
 var Ajv = require('ajv');
-var ajv = new Ajv();
+var ajv = new Ajv({ allErrors: true });
 
 exports.feedbackService = {
   create() {
@@ -15,7 +15,7 @@ exports.feedbackService = {
       var valid = validate(data);
       if (!valid) {
         console.log(validate.errors);
-        res.status(400).json(validate.errors);
+        res.status(400).json({ status: 'fail', data: validate.errors });
         return;
       }
 
