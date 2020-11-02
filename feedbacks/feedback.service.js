@@ -1,6 +1,6 @@
 const Feedback = require('./feedback.model');
 const catchAsync = require('../util/catchAsync');
-const schema = require('./feeedbackSchema');
+const schema = require('./feeedback.schema');
 var Ajv = require('ajv');
 var ajv = new Ajv();
 
