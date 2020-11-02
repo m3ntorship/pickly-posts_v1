@@ -9,7 +9,7 @@ const userSchema = new mongoose.Schema({
   googleId: String
 });
 
-userSchema.methods.vote = function (id) {
+userSchema.methods.upvote = function (id) {
   if (this.votes.indexOf(id) === -1) {
     this.votes.push(id);
   }
@@ -17,8 +17,8 @@ userSchema.methods.vote = function (id) {
 };
 
 userSchema.methods.isVoted = function (id) {
-  return this.votes.some(function (pollId) {
-    return pollId.toString() === id.toString();
+  return this.votes.some(postId => {
+    return postId.toString() === id.toString();
   });
 };
 
