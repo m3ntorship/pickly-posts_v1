@@ -10,13 +10,12 @@ const imageSchema = new mongoose.Schema(
     votes: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Votes'
-    },
-    voted: Boolean
+    }
   },
-  { versionKey: false }
+  { toJSON: { virtuals: true }, versionKey: false }
 );
 
-imageSchema.methods.isVotedByUser = async function () {};
+imageSchema.virtual('votedByUser');
 
 const Image = mongoose.model('image', imageSchema);
 
