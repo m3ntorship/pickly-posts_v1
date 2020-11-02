@@ -126,19 +126,28 @@ exports.postService = {
   },
   update() {
     return catchAsync(async (req, res, next) => {
-      const doc = await Post.findByIdAndUpdate(req.params.id, req.body, {
-        new: true,
-        runValidators: true
-      });
+      let post = await Post.findOne({ _id: req.params.id });
 
-      if (!doc) {
+      if (req.user.mongouser._id.toString() !== post.author.toString())
+        return next(
+          new AppError('You have no permission to edit this post', 401)
+        );
+
+      const updatedPost = await Post.findByIdAndUpdate(
+        req.params.id,
+        req.body,
+        {
+          new: true,
+          runValidators: true
+        }
+      );
+
+      if (!post) {
         return next(new AppError('No document found with that ID', 404));
       }
       res.status(200).json({
         status: 'success',
-        data: {
-          data: doc.toJSONFor(req.user.mongouser)
-        }
+        data: updatedPost
       });
     });
   },
