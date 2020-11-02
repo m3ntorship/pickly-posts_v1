@@ -20,7 +20,9 @@ app.use(
     winstonInstance: logger,
     meta: false,
     msg: 'HTTP {{req.method}} {{req.url}}',
-    expressFormat: true
+    expressFormat: true,
+    blacklistedMetaFields: ['trace'],
+    headerBlacklist: ['authorization', 'cookie']
   })
 );
 
@@ -40,7 +42,9 @@ app.use('/images', imageRouter);
 
 app.use(
   expressWinston.errorLogger({
-    winstonInstance: logger
+    winstonInstance: logger,
+    blacklistedMetaFields: ['trace'],
+    headerBlacklist: ['authorization', 'cookie']
   })
 );
 
