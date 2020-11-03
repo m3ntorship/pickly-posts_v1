@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const Votes = require('./votes.model');
 
 const imageSchema = new mongoose.Schema(
   {
@@ -16,6 +17,7 @@ const imageSchema = new mongoose.Schema(
 );
 
 imageSchema.methods.isVotedByUser = async function () {};
+
 const Image = mongoose.model('image', imageSchema);
 
 const resourcesSchema = new mongoose.Schema({
@@ -33,6 +35,7 @@ resourcesSchema.pre('remove', async function () {
       $in: this.images
     }
   });
+  await Votes.deleteMany({ image: { $in: this.images } });
 });
 
 const Resources = mongoose.model('resources', resourcesSchema);
