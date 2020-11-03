@@ -147,7 +147,7 @@ exports.postService = {
       const query = await Post.findById(req.params.id);
       if (query) {
         if (query.author.toString() === req.user.mongouser._id.toString()) {
-          await Post.deleteOne({ _id: req.params.id });
+          query.remove();
           return res.status(204).send();
         }
         return next(new AppError("Only post's owner can delete it", 403));
