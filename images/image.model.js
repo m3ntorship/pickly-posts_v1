@@ -10,24 +10,45 @@ const imageSchema = new mongoose.Schema(
     votes: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Votes'
-    },
-    voted: Boolean
+    }
   },
-  { versionKey: false }
+  {
+    toJSON: {
+      transform: function (doc, ret) {
+        ret.id = undefined;
+        ret.__v = undefined;
+        return ret;
+      },
+      virtuals: true
+    },
+    versionKey: false
+  }
 );
 
-imageSchema.methods.isVotedByUser = async function () {};
+imageSchema.virtual('votedByUser');
 
 const Image = mongoose.model('image', imageSchema);
 
-const resourcesSchema = new mongoose.Schema({
-  images: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'image'
-    }
-  ]
-});
+const resourcesSchema = new mongoose.Schema(
+  {
+    images: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'image'
+      }
+    ]
+  },
+  {
+    toJSON: {
+      transform: function (doc, ret) {
+        ret._id = undefined;
+        ret.__v = undefined;
+        return ret;
+      }
+    },
+    versionKey: false
+  }
+);
 
 const Resources = mongoose.model('resources', resourcesSchema);
 module.exports = {
