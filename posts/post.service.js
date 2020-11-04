@@ -5,9 +5,9 @@ const isTruthy = require('../util/isTruthy');
 const AppError = require('../util/appError');
 const Votes = require('../images/votes.model');
 
-const getPopulatedPosts = async id => {
+const getPopulatedPosts = id => {
   if (id) {
-    return await Post.findOne({ _id: id })
+    return Post.findOne({ _id: id })
       .populate({
         path: 'resources',
         model: 'resources',
@@ -25,7 +25,7 @@ const getPopulatedPosts = async id => {
       })
       .populate('author', 'name email userImage');
   } else {
-    return await Post.find()
+    return Post.find()
       .populate({
         path: 'resources',
         model: 'resources',
