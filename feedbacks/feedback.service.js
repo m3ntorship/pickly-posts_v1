@@ -1,4 +1,5 @@
 const Feedback = require('./feedback.model');
+const Category = require('./category.model');
 const catchAsync = require('../util/catchAsync');
 const schema = require('./feeedback.schema');
 var Ajv = require('ajv');
@@ -31,11 +32,10 @@ exports.feedbackService = {
           createdAt: { $gte: today }
         })
       ).length;
-      // console.log(feedbacksCount);
       if (todayFeedbacks >= 5) {
         res.status(429).json({
           status: 'fail',
-          data: 'Many feedbacks today !'
+          data: 'Too Many feedbacks today for this user!'
         });
         return;
       }
@@ -53,6 +53,16 @@ exports.feedbackService = {
     return catchAsync(async (req, res) => {
       const feedbacks = await Feedback.find();
       res.status(200).json({ status: 'success', data: feedbacks });
+    });
+  },
+
+  getCategories() {
+    return catchAsync(async (req, res) => {
+      const categories = await Category.find();
+      res.status(200).json({
+        status: 'success',
+        data: categories
+      });
     });
   }
 };
