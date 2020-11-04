@@ -22,6 +22,13 @@ const votesSchema = new mongoose.Schema(
     }
   },
   {
+    toJSON: {
+      transform: function (doc, ret) {
+        ret.__v = undefined;
+        return ret;
+      }
+    },
+    versionKey: false,
     timestamps: true
   }
 );

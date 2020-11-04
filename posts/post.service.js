@@ -11,7 +11,6 @@ const getPopulatedPosts = id => {
       .populate({
         path: 'resources',
         model: 'resources',
-        select: '-_id -__v',
         populate: {
           path: 'images',
           model: 'image',
@@ -29,7 +28,6 @@ const getPopulatedPosts = id => {
       .populate({
         path: 'resources',
         model: 'resources',
-        select: '-_id -__v',
         populate: {
           path: 'images',
           model: 'image',
@@ -105,24 +103,6 @@ exports.postService = {
       post.ownedByCurrentUser =
         user._id.toString() === post.author._id.toString();
       res.status(200).json({ status: 'success', post });
-    });
-  },
-  update() {
-    return catchAsync(async (req, res, next) => {
-      const doc = await Post.findByIdAndUpdate(req.params.id, req.body, {
-        new: true,
-        runValidators: true
-      });
-
-      if (!doc) {
-        return next(new AppError('No document found with that ID', 404));
-      }
-      res.status(200).json({
-        status: 'success',
-        data: {
-          data: doc.toJSONFor(req.user.mongouser)
-        }
-      });
     });
   },
   delete() {

@@ -21,11 +21,14 @@ const postSchema = new mongoose.Schema(
     toJSON: {
       transform: function (doc, ret) {
         ret.author = ret.isAnonymous ? undefined : ret.author;
+        ret.id = undefined;
+        ret.__v = undefined;
         return ret;
       },
       virtuals: true
     },
-    timestamps: true
+    timestamps: true,
+    versionKey: false
   }
 );
 

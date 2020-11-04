@@ -12,21 +12,43 @@ const imageSchema = new mongoose.Schema(
       ref: 'Votes'
     }
   },
-  { toJSON: { virtuals: true }, versionKey: false }
+  {
+    toJSON: {
+      transform: function (doc, ret) {
+        ret.id = undefined;
+        ret.__v = undefined;
+        return ret;
+      },
+      virtuals: true
+    },
+    versionKey: false
+  }
 );
 
 imageSchema.virtual('votedByUser');
 
 const Image = mongoose.model('image', imageSchema);
 
-const resourcesSchema = new mongoose.Schema({
-  images: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'image'
-    }
-  ]
-});
+const resourcesSchema = new mongoose.Schema(
+  {
+    images: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'image'
+      }
+    ]
+  },
+  {
+    toJSON: {
+      transform: function (doc, ret) {
+        ret._id = undefined;
+        ret.__v = undefined;
+        return ret;
+      }
+    },
+    versionKey: false
+  }
+);
 
 const Resources = mongoose.model('resources', resourcesSchema);
 module.exports = {
