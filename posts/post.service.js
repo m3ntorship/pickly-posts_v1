@@ -4,6 +4,7 @@ const catchAsync = require('../util/catchAsync');
 const isTruthy = require('../util/isTruthy');
 const AppError = require('../util/appError');
 const Votes = require('../images/votes.model');
+const cloudinary = require('cloudinary').v2;
 
 const populateData = async (voted, post) => {
   await post.populate('author', 'name email userImage').execPopulate();
@@ -147,6 +148,24 @@ exports.postService = {
       const query = await Post.findById(req.params.id);
       if (query) {
         if (query.author.toString() === req.user.mongouser._id.toString()) {
+          const post = await query
+            .populate({
+              path: 'resources',
+              model: 'resources',
+              populate: {
+                path: 'images',
+                model: 'image',
+                select: ' url'
+              }
+            })
+            .execPopulate();
+          const imgIds = [];
+          post.resources.images.forEach(({ url }) => {
+            const c = url.split('/');
+            imgIds.push(c[c.length - 1].split('.')[0]);
+          });
+
+          cloudinary.api.delete_resources(imgIds);
           query.remove();
           return res.status(204).send();
         }
