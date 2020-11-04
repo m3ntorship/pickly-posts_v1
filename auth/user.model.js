@@ -1,13 +1,24 @@
 const mongoose = require('mongoose');
-const userSchema = new mongoose.Schema({
-  name: String,
-  email: String,
-  password: String,
-  userImage: String,
-  posts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Post' }],
-  votes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Article' }],
-  googleId: String
-});
+const userSchema = new mongoose.Schema(
+  {
+    name: String,
+    email: String,
+    password: String,
+    userImage: String,
+    posts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Post' }],
+    votes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Article' }],
+    googleId: String
+  },
+  {
+    toJSON: {
+      transform: function (doc, ret) {
+        ret.__v = undefined;
+        return ret;
+      }
+    },
+    versionKey: false
+  }
+);
 
 userSchema.methods.upvote = function (id) {
   if (this.votes.indexOf(id) === -1) {

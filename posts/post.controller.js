@@ -5,7 +5,6 @@ const { postService } = require('./post.service');
 
 exports.getPost = postService.get();
 exports.createPost = postService.create();
-exports.updatePost = postService.update();
 exports.deletePost = postService.delete();
 exports.getAllPosts = postService.getAll({
 	getRecentFirst: true,
