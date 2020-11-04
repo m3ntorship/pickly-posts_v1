@@ -1,0 +1,324 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "description": "Post Service API Specs\n",
+    "version": "1.0.0",
+    "title": "Pickly Post Service"
+  },
+  "tags": [
+    {
+      "name": "posts",
+      "description": "Posts end point"
+    },
+    {
+      "name": "feedbacks",
+      "description": "End point for posting and fetching feedbacks"
+    }
+  ],
+  "security": [
+    {
+      "firebaseAuth": []
+    }
+  ],
+  "paths": {
+    "/posts": {
+      "post": {
+        "tags": ["posts"],
+        "summary": "Create a new post",
+        "operationId": "create",
+        "responses": {
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "201": {
+            "description": "Post Created Successfully"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "caption": {
+                    "type": "string"
+                  },
+                  "isAnonymous": {
+                    "type": "boolean"
+                  },
+                  "images": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "binary"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": ["posts"],
+        "summary": "get All posts for feed",
+        "operationId": "getPosts",
+        "responses": {
+          "200": {
+            "description": "success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Post"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        }
+      }
+    },
+    "/posts/{postId}": {
+      "get": {
+        "tags": ["posts"],
+        "summary": "get Post by Id",
+        "operationId": "getPost",
+        "parameters": [
+          {
+            "name": "postId",
+            "in": "path",
+            "description": "get a single post by its Id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Fetched Post successfuly",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Post"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "404": {
+            "description": "Post Not Found"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["posts"],
+        "summary": "Deletes a post",
+        "operationId": "delete",
+        "parameters": [
+          {
+            "name": "postId",
+            "in": "path",
+            "description": "Pet id to delete",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "204": {
+            "description": "no content"
+          }
+        }
+      }
+    },
+    "/feedbacks": {
+      "post": {
+        "tags": ["feedbacks"],
+        "summary": "Add a new feedback to the database",
+        "operationId": "addFeedback",
+        "responses": {
+          "400": {
+            "description": "Bad request"
+          },
+          "429": {
+            "description": "Too Many Requests"
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Feedback"
+              }
+            }
+          },
+          "description": "Updated user object",
+          "required": true
+        }
+      },
+      "get": {
+        "tags": ["feedbacks"],
+        "summary": "get all feedbacks",
+        "operationId": "getFeedbacks",
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Feedback"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Post": {
+        "type": "object",
+        "required": ["caption", "resources", "isAnonymous"],
+        "properties": {
+          "caption": {
+            "type": "string"
+          },
+          "resources": {
+            "$ref": "#/components/schemas/Resource"
+          },
+          "isAnonymous": {
+            "type": "boolean"
+          },
+          "author": {
+            "$ref": "#/components/schemas/Author"
+          },
+          "voted": {
+            "type": "boolean",
+            "default": false
+          },
+          "ownedByCurrentUser": {
+            "type": "boolean"
+          }
+        }
+      },
+      "Resource": {
+        "type": "object",
+        "properties": {
+          "images": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Image"
+            }
+          }
+        }
+      },
+      "Image": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "provider": {
+            "type": "string"
+          },
+          "votes": {
+            "$ref": "#/components/schemas/Vote"
+          },
+          "votedByUser": {
+            "type": "boolean"
+          }
+        }
+      },
+      "Vote": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "integer",
+            "default": 0
+          }
+        }
+      },
+      "Author": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          }
+        }
+      },
+      "Feedback": {
+        "type": "object",
+        "properties": {
+          "category": {
+            "type": "string",
+            "enum": ["Front end", "Back end", "UI/UX"]
+          },
+          "body": {
+            "type": "string",
+            "minLength": 50,
+            "maxLength": 500
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "firebaseAuth": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    },
+    "responses": {
+      "UnauthorizedError": {
+        "description": "UnAuthorized Access token is missing or invalid"
+      }
+    }
+  },
+  "servers": [
+    {
+      "description": "Try it Now",
+      "url": "https://pickly-posts-be-dev.m3ntorship.net/"
+    }
+  ]
+}
