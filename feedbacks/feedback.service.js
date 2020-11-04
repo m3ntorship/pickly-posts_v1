@@ -5,6 +5,7 @@ const catchAsync = require('../util/catchAsync');
 const schema = require('./feedback.schema');
 var Ajv = require('ajv');
 var ajv = new Ajv({ allErrors: true });
+var startOfToday = require('date-fns/startOfToday');
 
 exports.feedbackService = {
   create() {
@@ -27,8 +28,7 @@ exports.feedbackService = {
         return next(new AppError(errorsMesssage, 400));
       }
 
-      var now = new Date();
-      var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      var today = startOfToday();
       let todayFeedbacks = (
         await Feedback.find({
           author: user._id,
