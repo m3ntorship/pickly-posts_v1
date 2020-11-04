@@ -30,7 +30,8 @@ app.use(
 app.get('/health', (req, res) => {
   res.json({ ok: true });
 });
-app.get('/', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use('/', swaggerUi.serve);
+app.get('/', swaggerUi.setup(swaggerDocument));
 
 // protect all routes
 app.use(protector);
