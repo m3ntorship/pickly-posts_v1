@@ -6,14 +6,12 @@ const AppError = require('../util/appError');
 const Votes = require('../images/votes.model');
 const cloudinary = require('cloudinary').v2;
 
-const populateData = async (voted, post) => {
-  await post.populate('author', 'name email userImage').execPopulate();
-  if (voted) {
-    await post
+const getPopulatedPosts = id => {
+  if (id) {
+    return Post.findOne({ _id: id })
       .populate({
         path: 'resources',
         model: 'resources',
-        select: '-_id -__v',
         populate: {
           path: 'images',
           model: 'image',
@@ -25,24 +23,26 @@ const populateData = async (voted, post) => {
           }
         }
       })
-      .execPopulate();
+      .populate('author', 'name email userImage');
   } else {
-    await post
+    return Post.find()
       .populate({
         path: 'resources',
         model: 'resources',
-        select: '-_id -__v',
         populate: {
           path: 'images',
           model: 'image',
-          select: 'name url'
+          select: 'name url',
+          populate: {
+            path: 'votes',
+            model: 'Votes',
+            select: 'count  updatedAt'
+          }
         }
       })
-      .execPopulate();
+      .populate('author', 'name email userImage');
   }
-  return post;
 };
-
 const isVotedByCurrUser = async (userId, post) => {
   for (const i in post.resources.images) {
     const userVotedImage = await Votes.findOne({
@@ -56,23 +56,6 @@ const isVotedByCurrUser = async (userId, post) => {
   }
   return post;
 };
-
-const isOwnedByCurrentUser = async (userId, post) => {
-  const query = await Post.findById(post._id);
-  const ownedByCurrentUser = userId.toString() === query.author.toString();
-  post.ownedByCurrentUser = ownedByCurrentUser;
-  return post;
-};
-
-const setPostBusinessProperties = async (post, user) => {
-  post.setVoted(user);
-  post = await populateData(post.Voted, post);
-  post = post.toJSON();
-  post = await isVotedByCurrUser(user._id, post);
-  post = await isOwnedByCurrentUser(user._id, post);
-  return post;
-};
-
 exports.postService = {
   create() {
     return catchAsync(async (req, res, next) => {
@@ -114,33 +97,13 @@ exports.postService = {
   },
   get() {
     return catchAsync(async (req, res, next) => {
-      let post = await Post.findById(req.params.id);
-      if (!post) {
-        return next(new AppError('No document found with that ID', 404));
-      }
-      post = await setPostBusinessProperties(post, req.user.mongouser);
-      res.status(200).json({
-        status: 'success',
-        post
-      });
-    });
-  },
-  update() {
-    return catchAsync(async (req, res, next) => {
-      const doc = await Post.findByIdAndUpdate(req.params.id, req.body, {
-        new: true,
-        runValidators: true
-      });
-
-      if (!doc) {
-        return next(new AppError('No document found with that ID', 404));
-      }
-      res.status(200).json({
-        status: 'success',
-        data: {
-          data: doc.toJSONFor(req.user.mongouser)
-        }
-      });
+      const user = req.user.mongouser;
+      let post = await getPopulatedPosts(req.params.id);
+      post = await isVotedByCurrUser(user._id, post);
+      post.Voted = user.isVoted(post._id);
+      post.ownedByCurrentUser =
+        user._id.toString() === post.author._id.toString();
+      res.status(200).json({ status: 'success', post });
     });
   },
   delete() {
@@ -174,19 +137,20 @@ exports.postService = {
       return next(new AppError('cannot find doc with that id', 404));
     });
   },
-  getAll(options) {
+  getAll() {
     return catchAsync(async (req, res, next) => {
-      let posts = Post.find();
-      if (options.getRecentFirst) {
-        posts.sort('-createdAt');
-      }
-      posts = await posts;
+      const user = req.user.mongouser;
+      let posts = await getPopulatedPosts();
       posts = await Promise.all(
         posts.map(async post => {
-          return setPostBusinessProperties(post, req.user.mongouser);
+          post = await isVotedByCurrUser(user._id, post);
+          post.Voted = user.isVoted(post._id);
+          post.ownedByCurrentUser =
+            user._id.toString() === post.author._id.toString();
+          return post;
         })
       );
-      res.status(200).json({ data: posts });
+      res.status(200).json({ status: 'success', data: posts });
     });
   }
 };
