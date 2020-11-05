@@ -121,11 +121,11 @@ exports.postService = {
   getAll() {
     return catchAsync(async (req, res, next) => {
       const user = req.user.mongouser;
-      const { limit, page } = req.query;
+      const { page } = req.query;
       let posts = await getPopulatedPosts()
         .sort('-createdAt')
-        .limit(+limit)
-        .skip(+limit * (+page - 1));
+        .limit(15)
+        .skip(15 * (+page - 1));
       posts = await Promise.all(
         posts.map(async post => {
           post = await isVotedByCurrUser(user._id, post);
