@@ -48,13 +48,6 @@ exports.imageService = {
 		});
 		return upload.fields([{ name: 'options', maxCount: 4 }]);
 	},
-	get() {
-		return catchAsync(async (req, res, next) => {
-			const image = await Image.findById(req.params.imageId);
-			if (!image) return next(new AppError('No image found.', 400));
-			res.status(200).json({ image });
-		});
-	},
 	upvote() {
 		return catchAsync(async (req, res, next) => {
 			const {
