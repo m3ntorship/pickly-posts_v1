@@ -1,5 +1,5 @@
 const multer = require('multer');
-const { Image } = require('./image.model');
+const { Image } = require('./option.model');
 const Votes = require('./votes.model');
 const AppError = require('../util/appError');
 const cloudinaryStorage = require('../util/cloudinary-custom-storage');
@@ -46,7 +46,7 @@ exports.imageService = {
 			storage: cloudinaryStorage,
 			fileFilter: multerFilter,
 		});
-		return upload.fields([{ name: 'images', maxCount: 4 }]);
+		return upload.fields([{ name: 'options', maxCount: 4 }]);
 	},
 	get() {
 		return catchAsync(async (req, res, next) => {
