@@ -6,6 +6,8 @@ const schema = require('./feedback.schema');
 var Ajv = require('ajv');
 var ajv = new Ajv({ allErrors: true });
 var startOfToday = require('date-fns/startOfToday');
+const { error } = require('winston');
+let categoriesTitles = [];
 
 exports.feedbackService = {
   create() {
@@ -16,6 +18,16 @@ exports.feedbackService = {
         body: req.body.body,
         author: user._id
       };
+
+      console.log(categoriesTitles);
+      if (data.category && !categoriesTitles.includes(data.category)) {
+        return next(
+          new AppError(
+            'category: should be equal to one of the allowed values',
+            400
+          )
+        );
+      }
 
       var validate = ajv.compile(schema);
       var valid = validate(data);
@@ -60,6 +72,9 @@ exports.feedbackService = {
   getCategories() {
     return catchAsync(async (req, res) => {
       const categories = await Category.find();
+      for (let category of categories) {
+        categoriesTitles.push(category.title);
+      }
       res.status(200).json({
         status: 'success',
         data: categories

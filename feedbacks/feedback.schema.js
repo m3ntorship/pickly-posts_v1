@@ -2,8 +2,7 @@ const schema = {
   type: 'object',
   properties: {
     category: {
-      type: 'string',
-      enum: ['Front end', 'Back end', 'UI/UX']
+      type: 'string'
     },
     body: {
       type: 'string',
