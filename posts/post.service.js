@@ -121,7 +121,7 @@ exports.postService = {
   getAll() {
     return catchAsync(async (req, res, next) => {
       const user = req.user.mongouser;
-      let posts = await getPopulatedPosts();
+      let posts = await getPopulatedPosts().sort('-createdAt');
       posts = await Promise.all(
         posts.map(async post => {
           post = await isVotedByCurrUser(user._id, post);
