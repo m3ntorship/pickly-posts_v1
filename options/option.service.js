@@ -1,25 +1,25 @@
 const multer = require('multer');
-const { Image } = require('./option.model');
+const { Option } = require('./option.model');
 const Votes = require('./votes.model');
 const AppError = require('../util/appError');
 const cloudinaryStorage = require('../util/cloudinary-custom-storage');
 const catchAsync = require('../util/catchAsync');
 
-const vote = async (imageVotes, user, userId, res, next) => {
-	if (user.mongouser.isVoted(imageVotes.postId.toString())) {
+const vote = async (optionVotes, user, userId, res, next) => {
+	if (user.mongouser.isVoted(optionVotes.postId.toString())) {
 		return next(new AppError('Already Voted', 400));
 	}
 	if (
-		!imageVotes.voters.some((user) => user.toString() === userId.toString())
+		!optionVotes.voters.some((user) => user.toString() === userId.toString())
 	) {
-		imageVotes.voters.push(userId.toString());
-		imageVotes.count += 1;
+		optionVotes.voters.push(userId.toString());
+		optionVotes.count += 1;
 
-		await user.mongouser.upvote(imageVotes.postId.toString());
-		await imageVotes.save();
+		await user.mongouser.upvote(optionVotes.postId.toString());
+		await optionVotes.save();
 
 		return res.json({
-			votes: imageVotes.count,
+			votes: optionVotes.count,
 		});
 	} else {
 		return next(new AppError('Already Voted', 400));
@@ -58,7 +58,7 @@ exports.imageService = {
 	upvote() {
 		return catchAsync(async (req, res, next) => {
 			const {
-				params: { imageId },
+				params: { optionId },
 				user,
 				user: {
 					mongouser: { _id: userId },
@@ -66,22 +66,22 @@ exports.imageService = {
 			} = req;
 			if (!user) return next(new AppError(`User isn't Found`, 401));
 
-			const img = await Image.findById(imageId);
-			if (!img) return next(new AppError('Image  not found', 404));
+			const option = await Option.findById(optionId);
+			if (!option) return next(new AppError('Option not found', 404));
 
-			let imageVotes = await Votes.findOne({ image: imageId });
+			let optionVotes = await Votes.findOne({ option: optionId });
 
-			if (!imageVotes) {
-				imageVotes = await Votes.create({
-					image: img._id,
-					postId: img.postId.toString(),
+			if (!optionVotes) {
+				optionVotes = await Votes.create({
+					option: option._id,
+					postId: option.postId.toString(),
 				});
-				img.votes = imageVotes._id;
-				await img.save();
-				return vote(imageVotes, user, userId, res, next);
+				option.votes = optionVotes._id;
+				await option.save();
+				return vote(optionVotes, user, userId, res, next);
 			} else {
-				const imageVotes = await Votes.findOne({ image: imageId });
-				return vote(imageVotes, user, userId, res, next);
+				const optionVotes = await Votes.findOne({ option: optionId });
+				return vote(optionVotes, user, userId, res, next);
 			}
 		});
 	},
