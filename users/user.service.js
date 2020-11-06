@@ -45,11 +45,13 @@ exports.userService = {
         //       }
         //     }
         //   });
-        res.json(userPosts);
+        return res.json(userPosts);
       } else {
-        return new AppError(
-          `You are not allowed to view this profile posts at the current moment`,
-          403
+        return next(
+          new AppError(
+            `You are not allowed to view this profile posts at the current moment`,
+            403
+          )
         );
       }
     });
