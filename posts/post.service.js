@@ -125,7 +125,9 @@ exports.postService = {
           const imgIds = [];
           post.resources.images.forEach(({ url }) => {
             const c = url.split('/');
-            imgIds.push(c[c.length - 1].split('.')[0]);
+            const imageId = c[c.length - 1].split('.')[0];
+            const folderName = process.env.API_FOLDER_NAME || 'temp';
+            imgIds.push(`${folderName}/${imageId}`);
           });
 
           cloudinary.api.delete_resources(imgIds);
