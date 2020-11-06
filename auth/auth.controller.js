@@ -1,7 +1,7 @@
 const appError = require('../util/appError');
 const admin = require('firebase-admin');
 const { resolve } = require('path');
-const User = require('./user.model');
+const User = require('../users/user.model');
 const catchAsync = require('../util/catchAsync');
 const { protector } = require('@m3ntorship/pickly-protector');
 const serviceAccount = resolve('secrets', 'service-account.json');
