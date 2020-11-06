@@ -6,6 +6,7 @@ const winston = require('winston');
 const expressWinston = require('express-winston');
 const postRouter = require('./posts/post.routes');
 const imageRouter = require('./images/image.routes');
+const userRouter = require('./users/user.routes');
 const { protector } = require('./auth/auth.controller');
 const errorHandler = require('./middleware/errorhandler');
 const logger = require('./util/logger');
@@ -37,6 +38,7 @@ app.get('/protected', (req, res) => {
 
 app.use('/posts', postRouter);
 app.use('/images', imageRouter);
+app.use('/user', userRouter);
 
 app.use(
   expressWinston.errorLogger({
