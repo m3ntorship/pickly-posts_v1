@@ -124,8 +124,8 @@ exports.postService = {
       const { limit, page } = req.query;
       let posts = await getPopulatedPosts()
         .sort('-createdAt')
-        .limit(+limit || 10)
-        .skip((+limit || 10) * (+page - 1));
+        .limit(+limit || 1000)
+        .skip((+limit || 1000) * (+page - 1));
       posts = await Promise.all(
         posts.map(async post => {
           post = await isVotedByCurrUser(user._id, post);
