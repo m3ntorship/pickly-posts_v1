@@ -2,9 +2,9 @@ const mongoose = require('mongoose');
 
 const votesSchema = new mongoose.Schema(
   {
-    image: {
+    option: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'image'
+      ref: 'option'
     },
     voters: [
       {

@@ -6,11 +6,11 @@ const postSchema = new mongoose.Schema(
       type: String,
       required: true
     },
-    resources: {
+    options: [{
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'resources',
+      ref: 'option',
       required: true
-    },
+    }],
     isAnonymous: {
       type: Boolean,
       default: false
