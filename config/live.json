@@ -1,3 +1,4 @@
 {
-  "environment": "live"
+  "environment": "live",
+  "pagination_limit": 10
 }

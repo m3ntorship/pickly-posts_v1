@@ -4,6 +4,7 @@ const catchAsync = require('../util/catchAsync');
 const isTruthy = require('../util/isTruthy');
 const AppError = require('../util/appError');
 const Votes = require('../images/votes.model');
+const config = require('config');
 
 const getPopulatedPosts = id => {
   if (id) {
@@ -120,12 +121,13 @@ exports.postService = {
   },
   getAll() {
     return catchAsync(async (req, res, next) => {
+      const pagination_limit = config.get('pagination_limit');
       const user = req.user.mongouser;
       const { limit, page } = req.query;
       let posts = await getPopulatedPosts()
         .sort('-createdAt')
-        .limit(+limit || 1000)
-        .skip((+limit || 1000) * (+page - 1));
+        .limit(+limit || pagination_limit)
+        .skip((+limit || pagination_limit) * (+page - 1));
       posts = await Promise.all(
         posts.map(async post => {
           post = await isVotedByCurrUser(user._id, post);
