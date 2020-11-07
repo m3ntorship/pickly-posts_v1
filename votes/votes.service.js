@@ -3,19 +3,16 @@ const Votes = require('../votes/votes.model');
 const AppError = require('../util/appError');
 const catchAsync = require('../util/catchAsync');
 
-const vote = async (imageVotes, user, userId, res, next) => {
-  if (user.mongouser.isVoted(imageVotes.postId.toString())) {
-    return next(new AppError('Already Voted', 400));
-  }
-  if (!imageVotes.voters.some(user => user.toString() === userId.toString())) {
-    imageVotes.voters.push(userId.toString());
-    imageVotes.count += 1;
+const vote = async (optionVotes, user, userId, res, next) => {
+  if (!optionVotes.voters.some(user => user.toString() === userId.toString())) {
+    optionVotes.voters.push(userId.toString());
+    optionVotes.count += 1;
 
-    await user.mongouser.upvote(imageVotes.postId.toString());
-    await imageVotes.save();
+    await user.mongouser.upvote(optionVotes.postId.toString());
+    await optionVotes.save();
 
     return res.json({
-      votes: imageVotes.count
+      votes: optionVotes.count
     });
   } else {
     return next(new AppError('Already Voted', 400));
@@ -26,7 +23,7 @@ exports.voteService = {
   upvote() {
     return catchAsync(async (req, res, next) => {
       const {
-        params: { imageId },
+        params: { optionId },
         user,
         user: {
           mongouser: { _id: userId }
@@ -34,22 +31,26 @@ exports.voteService = {
       } = req;
       if (!user) return next(new AppError(`User isn't Found`, 401));
 
-      const img = await Image.findById(imageId);
+      const img = await Image.findById(optionId);
       if (!img) return next(new AppError('Image  not found', 404));
 
-      let imageVotes = await Votes.findOne({ image: imageId });
+      let optionVotes = await Votes.findOne({ image: optionId });
 
-      if (!imageVotes) {
-        imageVotes = await Votes.create({
-          image: img._id,
+      if (user.mongouser.isVoted(img.postId.toString())) {
+        return next(new AppError('Already Voted', 400));
+      }
+      
+      if (!optionVotes) {
+        optionVotes = await Votes.create({
+          option: img._id,
           postId: img.postId.toString()
         });
-        img.votes = imageVotes._id;
+        img.votes = optionVotes._id;
         await img.save();
-        return vote(imageVotes, user, userId, res, next);
+        return vote(optionVotes, user, userId, res, next);
       } else {
-        const imageVotes = await Votes.findOne({ image: imageId });
-        return vote(imageVotes, user, userId, res, next);
+        const optionVotes = await Votes.findOne({ image: optionId });
+        return vote(optionVotes, user, userId, res, next);
       }
     });
   }
