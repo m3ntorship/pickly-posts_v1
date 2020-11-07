@@ -7,6 +7,7 @@ const expressWinston = require('express-winston');
 const postRouter = require('./posts/post.routes');
 const imageRouter = require('./images/image.routes');
 const voteRouter = require('./votes/vote.routes');
+const feedbackRouter = require('./feedbacks/feedback.routes');
 const { protector } = require('./auth/auth.controller');
 const errorHandler = require('./middleware/errorhandler');
 const swaggerUi = require('swagger-ui-express');
@@ -43,6 +44,7 @@ app.get('/protected', (req, res) => {
 app.use('/votes', voteRouter);
 app.use('/posts', postRouter);
 app.use('/images', imageRouter);
+app.use('/feedbacks', feedbackRouter);
 
 app.use(
   expressWinston.errorLogger({
