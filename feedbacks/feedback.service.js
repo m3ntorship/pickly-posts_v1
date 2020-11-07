@@ -3,9 +3,9 @@ const Category = require('./category.model');
 const AppError = require('../util/appError');
 const catchAsync = require('../util/catchAsync');
 const schema = require('./feedback.schema');
-var Ajv = require('ajv');
-var ajv = new Ajv({ allErrors: true });
-var startOfToday = require('date-fns/startOfToday');
+let Ajv = require('ajv');
+let ajv = new Ajv({ allErrors: true });
+let startOfToday = require('date-fns/startOfToday');
 const { error } = require('winston');
 let categoriesTitles = [];
 
@@ -19,7 +19,6 @@ exports.feedbackService = {
         author: user._id
       };
 
-      console.log(categoriesTitles);
       if (data.category && !categoriesTitles.includes(data.category)) {
         return next(
           new AppError(
@@ -29,18 +28,19 @@ exports.feedbackService = {
         );
       }
 
-      var validate = ajv.compile(schema);
-      var valid = validate(data);
+      let validate = ajv.compile(schema);
+      let valid = validate(data);
       if (!valid) {
         let errorsMesssage = '';
         const errors = validate.errors;
+        console.log(errors);
         for (let error of errors) {
           errorsMesssage += error.dataPath + ': ' + error.message + ', ';
         }
-        return next(new AppError(errorsMesssage, 400));
+        return next(new AppError(errorsMesssage, 400, errors));
       }
 
-      var today = startOfToday();
+      let today = startOfToday();
       let todayFeedbacks = (
         await Feedback.find({
           author: user._id,
