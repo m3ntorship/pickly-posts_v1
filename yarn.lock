@@ -158,10 +158,10 @@
     protobufjs "^6.9.0"
     yargs "^15.3.1"
 
-"@m3ntorship/pickly-protector@0.0.3":
-  version "0.0.3"
-  resolved "https://registry.yarnpkg.com/@m3ntorship/pickly-protector/-/pickly-protector-0.0.3.tgz#d09d7717cdde300a1f358fd38e6f6782a692c5d6"
-  integrity sha512-LH49AjzJkjyIfIzZweTjssB2GsDNUmZLKnhqP9zbI2PyD/bxV5tvD+ZZYEHvNLkODrl4OTKtEnsOiGNGj8lL8Q==
+"@m3ntorship/pickly-protector@0.0.4":
+  version "0.0.4"
+  resolved "https://registry.yarnpkg.com/@m3ntorship/pickly-protector/-/pickly-protector-0.0.4.tgz#10669beeea3f5b0b3e59cf9a9752a94aff57c206"
+  integrity sha512-PoH4q5SAoQORtoT5ZMkr6d940RQju9JaL0SydJ0Fy2Eh+0GVD2hzBEfsb9y3P/lniXRVFXxb2tBdECDl8iIlXQ==
   dependencies:
     firebase-admin "^9.3.0"
     tslib "~2.0.1"
