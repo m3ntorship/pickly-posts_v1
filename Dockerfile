@@ -1,4 +1,4 @@
-FROM node:alpine3.12
+FROM node:12.19.0-alpine3.10
 WORKDIR /pickly-posts
 COPY . .
 

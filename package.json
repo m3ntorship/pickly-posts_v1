@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "@m3ntorship/pickly-protector": "^0.0.1",
+    "@m3ntorship/pickly-protector": "0.0.4",
     "ajv": "^6.12.6",
     "axios": "^0.20.0",
     "body-parser": "^1.19.0",
@@ -20,6 +20,7 @@
     "multer": "^1.4.2",
     "multer-storage-cloudinary": "^4.0.0",
     "nodemon": "^2.0.4",
+    "swagger-ui-express": "^4.1.4",
     "uuid": "^8.3.1",
     "validator": "^13.1.17",
     "winston": "^3.3.3",
