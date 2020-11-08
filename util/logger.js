@@ -1,6 +1,27 @@
+const config = require('config');
 const winston = require('winston');
 
-const logger = winston.createLogger({
+const devMode = config.get('dev_mode');
+
+const developmentLogger = winston.createLogger({
+  level: 'info',
+  format: winston.format.json(),
+  defaultMeta: { service: 'user-service-development' },
+  transports: [
+    new winston.transports.Console({ colorize: true }),
+    new winston.transports.File({
+      filename: './logs/error.log',
+      level: 'error',
+      maxsize: config.get('log_rotation_limit')
+    }),
+    new winston.transports.File({
+      filename: './logs/combined.log',
+      maxsize: config.get('log_rotation_limit')
+    })
+  ]
+});
+
+const productionLogger = winston.createLogger({
   level: 'info',
   format: winston.format.json(),
   defaultMeta: { service: 'user-service' },
@@ -9,13 +30,13 @@ const logger = winston.createLogger({
     new winston.transports.File({
       filename: './logs/error.log',
       level: 'error',
-      maxsize: '10000000'
+      maxsize: config.get('log_rotation_limit')
     }),
     new winston.transports.File({
       filename: './logs/combined.log',
-      maxsize: '100000000'
+      maxsize: config.get('log_rotation_limit')
     })
   ]
 });
 
-module.exports = logger;
+module.exports = devMode ? developmentLogger : productionLogger;
