@@ -238,7 +238,8 @@
           }
       }
     }
-  },
+  }
+},
   "components": {
     "schemas": {
       "Post": {
@@ -330,9 +331,8 @@
             "maxLength": 500
           }
         }
-      }
-    },
-    "Category":{
+      },
+      "Category":{
       "type": "object",
       "properties": {
         "title": {
@@ -358,5 +358,4 @@
       "url": "https://pickly-posts-be-dev.m3ntorship.net/"
     }
   ]
-}
-}
+}}
