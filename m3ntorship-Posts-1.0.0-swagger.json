@@ -23,18 +23,20 @@
   "paths": {
     "/posts": {
       "post": {
-        "tags": ["posts"],
+        "tags": [
+          "posts"
+        ],
         "summary": "Create a new post",
         "operationId": "create",
         "responses": {
+          "201": {
+            "description": "Post Created Successfully"
+          },
           "400": {
             "description": "Bad request"
           },
           "401": {
             "$ref": "#/components/responses/UnauthorizedError"
-          },
-          "201": {
-            "description": "Post Created Successfully"
           }
         },
         "requestBody": {
@@ -63,7 +65,9 @@
         }
       },
       "get": {
-        "tags": ["posts"],
+        "tags": [
+          "posts"
+        ],
         "summary": "get All posts for feed",
         "operationId": "getPosts",
         "responses": {
@@ -88,7 +92,9 @@
     },
     "/posts/{postId}": {
       "get": {
-        "tags": ["posts"],
+        "tags": [
+          "posts"
+        ],
         "summary": "get Post by Id",
         "operationId": "getPost",
         "parameters": [
@@ -122,7 +128,9 @@
         }
       },
       "delete": {
-        "tags": ["posts"],
+        "tags": [
+          "posts"
+        ],
         "summary": "Deletes a post",
         "operationId": "delete",
         "parameters": [
@@ -137,32 +145,34 @@
           }
         ],
         "responses": {
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          },
           "204": {
             "description": "no content"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
           }
         }
       }
     },
     "/feedbacks": {
       "post": {
-        "tags": ["feedbacks"],
+        "tags": [
+          "feedbacks"
+        ],
         "summary": "Add a new feedback to the database",
         "operationId": "addFeedback",
         "responses": {
-          "400": {
-            "description": "Bad request"
-          },
-          "429": {
-            "description": "Too Many Requests"
-          },
           "201": {
             "description": "Created"
           },
+          "400": {
+            "description": "Bad request"
+          },
           "401": {
             "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "429": {
+            "description": "Too Many Requests"
           }
         },
         "requestBody": {
@@ -178,7 +188,9 @@
         }
       },
       "get": {
-        "tags": ["feedbacks"],
+        "tags": [
+          "feedbacks"
+        ],
         "summary": "get all feedbacks",
         "operationId": "getFeedbacks",
         "responses": {
@@ -209,11 +221,13 @@
         }
       }
     },
-    "/feedbacks/categories":{
+    "/feedbacks/categories": {
       "get": {
-        "tags": ["feedbacks"],
-        "summary": "get all feedbacks categories",
-        "operationId": "getFeedbacksCategories",
+        "tags": [
+          "feedbacks"
+        ],
+        "summary": "get all categories from database",
+        "operationId": "getCategories",
         "responses": {
           "200": {
             "description": "successful operation",
@@ -236,15 +250,19 @@
               }
             }
           }
+        }
       }
     }
-  }
-},
+  },
   "components": {
     "schemas": {
       "Post": {
         "type": "object",
-        "required": ["caption", "resources", "isAnonymous"],
+        "required": [
+          "caption",
+          "resources",
+          "isAnonymous"
+        ],
         "properties": {
           "caption": {
             "type": "string"
@@ -323,7 +341,11 @@
         "properties": {
           "category": {
             "type": "string",
-            "enum": ["Front end", "Back end", "UI/UX"]
+            "enum": [
+              "Front end",
+              "Back end",
+              "UI/UX"
+            ]
           },
           "body": {
             "type": "string",
@@ -332,11 +354,12 @@
           }
         }
       },
-      "Category":{
-      "type": "object",
-      "properties": {
-        "title": {
-          "type": "string"
+      "Category": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          }
         }
       }
     },
@@ -345,8 +368,7 @@
         "type": "http",
         "scheme": "bearer"
       }
-    }
-  },
+    },
     "responses": {
       "UnauthorizedError": {
         "description": "UnAuthorized Access token is missing or invalid"
@@ -359,4 +381,4 @@
       "url": "https://pickly-posts-be-dev.m3ntorship.net/"
     }
   ]
-  }
+}
