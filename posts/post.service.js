@@ -4,7 +4,6 @@ const catchAsync = require('../util/catchAsync');
 const isTruthy = require('../util/isTruthy');
 const AppError = require('../util/appError');
 const Votes = require('../images/votes.model');
-const cloudinary = require('cloudinary').v2;
 
 const getPopulatedPosts = id => {
   if (id) {
@@ -108,35 +107,15 @@ exports.postService = {
   },
   delete() {
     return catchAsync(async (req, res, next) => {
-      const query = await Post.findById(req.params.id);
-      if (query) {
-        if (query.author.toString() === req.user.mongouser._id.toString()) {
-          const post = await query
-            .populate({
-              path: 'resources',
-              model: 'resources',
-              populate: {
-                path: 'images',
-                model: 'image',
-                select: ' url'
-              }
-            })
-            .execPopulate();
-          const imgIds = [];
-          post.resources.images.forEach(({ url }) => {
-            const c = url.split('/');
-            const imageId = c[c.length - 1].split('.')[0];
-            const folderName = process.env.API_FOLDER_NAME || 'temp';
-            imgIds.push(`${folderName}/${imageId}`);
-          });
-
-          cloudinary.api.delete_resources(imgIds);
-          query.remove();
-          return res.status(204).send();
-        }
+      const post = await Post.findById(req.params.id);
+      
+      if (!post)
+        return next(new AppError('cannot find doc with that id', 404));
+      if (!post.author.toString() === req.user.mongouser._id.toString())
         return next(new AppError("Only post's owner can delete it", 403));
-      }
-      return next(new AppError('cannot find doc with that id', 404));
+
+      post.remove();
+      res.status(204).send();
     });
   },
   getAll() {
