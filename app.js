@@ -7,8 +7,12 @@ const expressWinston = require('express-winston');
 const postRouter = require('./posts/post.routes');
 const imageRouter = require('./images/image.routes');
 const userRouter = require('./users/user.routes');
+const feedbackRouter = require('./feedbacks/feedback.routes');
 const { protector } = require('./auth/auth.controller');
 const errorHandler = require('./middleware/errorhandler');
+const swaggerUi = require('swagger-ui-express');
+const swaggerDocument = require('./m3ntorship-Posts-1.0.0-swagger.json');
+
 const logger = require('./util/logger');
 dotenv.config({ path: resolve('secrets', '.env') });
 
@@ -28,6 +32,8 @@ app.use(
 app.get('/health', (req, res) => {
   res.json({ ok: true });
 });
+app.use('/', swaggerUi.serve);
+app.get('/', swaggerUi.setup(swaggerDocument));
 
 // protect all routes
 app.use(protector);
@@ -39,6 +45,7 @@ app.get('/protected', (req, res) => {
 app.use('/posts', postRouter);
 app.use('/images', imageRouter);
 app.use('/user', userRouter);
+app.use('/feedbacks', feedbackRouter);
 
 app.use(
   expressWinston.errorLogger({
