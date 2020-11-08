@@ -107,15 +107,15 @@ exports.postService = {
   },
   delete() {
     return catchAsync(async (req, res, next) => {
-      const query = await Post.findById(req.params.id);
-      if (query) {
-        if (query.author.toString() === req.user.mongouser._id.toString()) {
-          await Post.deleteOne({ _id: req.params.id });
-          return res.status(204).send();
-        }
+      const post = await Post.findById(req.params.id);
+      
+      if (!post)
+        return next(new AppError('cannot find doc with that id', 404));
+      if (!post.author.toString() === req.user.mongouser._id.toString())
         return next(new AppError("Only post's owner can delete it", 403));
-      }
-      return next(new AppError('cannot find doc with that id', 404));
+
+      post.remove();
+      res.status(204).send();
     });
   },
   getAll() {

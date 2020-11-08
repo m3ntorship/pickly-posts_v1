@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { Resources } = require('../images/image.model');
 
 const postSchema = new mongoose.Schema(
   {
@@ -38,6 +39,13 @@ const postSchema = new mongoose.Schema(
   }
 );
 
+postSchema.methods.setVoted = function (user) {
+  this.Voted = user.isVoted(this._id);
+};
+postSchema.pre('remove', async function () {
+  const resources = await Resources.findOne({ _id: this.resources });
+  resources.remove();
+});
 postSchema.virtual('Voted');
 postSchema.virtual('ownedByCurrentUser');
 
