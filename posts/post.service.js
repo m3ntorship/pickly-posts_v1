@@ -121,13 +121,13 @@ exports.postService = {
   },
   getAll() {
     return catchAsync(async (req, res, next) => {
-      const pagination_limit = config.get('pagination_limit');
+      const pageCount = config.get('pagination.default_page_count');
       const user = req.user.mongouser;
       const { limit, page } = req.query;
       let posts = await getPopulatedPosts()
         .sort('-createdAt')
-        .limit(+limit || pagination_limit)
-        .skip((+limit || pagination_limit) * (+page - 1));
+        .limit(+limit || pageCount)
+        .skip((+limit || pageCount) * (+page - 1));
       posts = await Promise.all(
         posts.map(async post => {
           post = await isVotedByCurrUser(user._id, post);

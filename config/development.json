@@ -1,5 +1,7 @@
 {
   "environment": "development",
   "dev_mode": true,
-  "pagination_limit": 1000
+  "pagination": {
+    "default_page_count": 1000
+  }
 }
