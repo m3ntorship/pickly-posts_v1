@@ -208,6 +208,35 @@
           }
         }
       }
+    },
+    "/feedbacks/categories":{
+      "get": {
+        "tags": ["feedbacks"],
+        "summary": "get all feedbacks categories",
+        "operationId": "getFeedbacksCategories",
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Category"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+      }
     }
   },
   "components": {
@@ -303,6 +332,14 @@
         }
       }
     },
+    "Category":{
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        }
+      }
+    },
     "securitySchemes": {
       "firebaseAuth": {
         "type": "http",
@@ -321,4 +358,5 @@
       "url": "https://pickly-posts-be-dev.m3ntorship.net/"
     }
   ]
+}
 }
