@@ -12,11 +12,11 @@ const developmentLogger = winston.createLogger({
     new winston.transports.File({
       filename: './logs/error.log',
       level: 'error',
-      maxsize: '100000000' //100 mb in bytes
+      maxsize: config.get('log_rotation_limit')
     }),
     new winston.transports.File({
       filename: './logs/combined.log',
-      maxsize: '100000000' //100 mb in bytes
+      maxsize: config.get('log_rotation_limit')
     })
   ]
 });
@@ -30,11 +30,11 @@ const productionLogger = winston.createLogger({
     new winston.transports.File({
       filename: './logs/error.log',
       level: 'error',
-      maxsize: '100000000' //100 mb in bytes
+      maxsize: config.get('log_rotation_limit')
     }),
     new winston.transports.File({
       filename: './logs/combined.log',
-      maxsize: '100000000' //100 mb in bytes
+      maxsize: config.get('log_rotation_limit')
     })
   ]
 });

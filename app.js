@@ -1,3 +1,4 @@
+const config = require('config');
 const dotenv = require('dotenv');
 const express = require('express');
 const { resolve } = require('path');
@@ -24,7 +25,7 @@ app.use(
     meta: false,
     msg: 'HTTP {{req.method}} {{req.url}}',
     expressFormat: true,
-    blacklistedMetaFields: ['trace'],
+    blacklistedMetaFields: config.get('log_blacklisted_meta_fields'),
     headerBlacklist: ['authorization', 'cookie']
   })
 );
@@ -48,7 +49,7 @@ app.use('/images', imageRouter);
 app.use(
   expressWinston.errorLogger({
     winstonInstance: logger,
-    blacklistedMetaFields: ['trace'],
+    blacklistedMetaFields: config.get('log_blacklisted_meta_fields'),
     headerBlacklist: ['authorization', 'cookie']
   })
 );
