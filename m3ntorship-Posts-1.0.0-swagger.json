@@ -345,7 +345,8 @@
         "type": "http",
         "scheme": "bearer"
       }
-    },
+    }
+  },
     "responses": {
       "UnauthorizedError": {
         "description": "UnAuthorized Access token is missing or invalid"
@@ -358,4 +359,4 @@
       "url": "https://pickly-posts-be-dev.m3ntorship.net/"
     }
   ]
-}}
+  }
