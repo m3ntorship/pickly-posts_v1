@@ -1,3 +1,6 @@
 {
-  "environment": "live"
+  "environment": "live",
+  "pagination": {
+    "default_page_count": 10
+  }
 }

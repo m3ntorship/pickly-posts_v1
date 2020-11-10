@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { Resources } = require('../images/image.model');
 
 const postSchema = new mongoose.Schema(
   {
@@ -21,6 +22,12 @@ const postSchema = new mongoose.Schema(
     toJSON: {
       transform: function (doc, ret) {
         ret.author = ret.isAnonymous ? undefined : ret.author;
+        if (ret.Voted === false) {
+          ret.resources.images = ret.resources.images.map(image => {
+            image.votes = undefined;
+            return image;
+          });
+        }
         ret.id = undefined;
         ret.__v = undefined;
         return ret;
@@ -32,6 +39,13 @@ const postSchema = new mongoose.Schema(
   }
 );
 
+postSchema.methods.setVoted = function (user) {
+  this.Voted = user.isVoted(this._id);
+};
+postSchema.pre('remove', async function () {
+  const resources = await Resources.findOne({ _id: this.resources });
+  resources.remove();
+});
 postSchema.virtual('Voted');
 postSchema.virtual('ownedByCurrentUser');
 
