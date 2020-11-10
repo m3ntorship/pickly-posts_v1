@@ -3,7 +3,7 @@ const { Image, Resources } = require('../images/image.model');
 const catchAsync = require('../util/catchAsync');
 const isTruthy = require('../util/isTruthy');
 const AppError = require('../util/appError');
-const Votes = require('../images/votes.model');
+const Votes = require('../votes/votes.model');
 const config = require('config');
 
 const getPopulatedPosts = id => {
