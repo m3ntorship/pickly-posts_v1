@@ -6,7 +6,7 @@ const schema = {
     },
     body: {
       type: 'string',
-      minLength: 50,
+      minLength: 5,
       maxLength: 500
     }
   }
