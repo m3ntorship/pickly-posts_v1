@@ -8,5 +8,5 @@ const categorySchema = new Schema({
   }
 });
 
-const Category = mongoose.model('Feedback-categories', categorySchema);
+const Category = mongoose.model('Feedback-category', categorySchema);
 module.exports = Category;
