@@ -3,16 +3,27 @@ const Votes = require('../votes/votes.model');
 const AppError = require('../util/appError');
 const catchAsync = require('../util/catchAsync');
 
-const vote = async (optionVotes, user, userId, res, next) => {
-  if (!optionVotes.voters.some(user => user.toString() === userId.toString())) {
-    optionVotes.voters.push(userId.toString());
+const vote = async (optionVotes, user, userId, res, flag, next) => {
+  if (
+    !optionVotes.voters.some(vote => {
+      return vote.user.toString() === userId.toString();
+    })
+  ) {
+    if (flag && flag === 1) {
+      optionVotes.upvoteCount += 1;
+      optionVotes.voters.push({ user: userId.toString(), upvoted: true });
+    } else {
+      optionVotes.voters.push({ user: userId.toString() });
+    }
+
     optionVotes.count += 1;
 
     await user.mongouser.upvote(optionVotes.postId.toString());
     await optionVotes.save();
 
     return res.json({
-      votes: optionVotes.count
+      votes: optionVotes.count,
+      upvotes: optionVotes.upvoteCount
     });
   } else {
     return next(new AppError('Already Voted', 400));
@@ -27,7 +38,8 @@ exports.voteService = {
         user,
         user: {
           mongouser: { _id: userId }
-        }
+        },
+        body: { flag }
       } = req;
       if (!user) return next(new AppError(`User isn't Found`, 401));
 
@@ -39,18 +51,18 @@ exports.voteService = {
       if (user.mongouser.isVoted(img.postId.toString())) {
         return next(new AppError('Already Voted', 400));
       }
-      
+
       if (!optionVotes) {
         optionVotes = await Votes.create({
-          option: img._id,
+          image: img._id,
           postId: img.postId.toString()
         });
         img.votes = optionVotes._id;
         await img.save();
-        return vote(optionVotes, user, userId, res, next);
+        return vote(optionVotes, user, userId, res, flag, next);
       } else {
         const optionVotes = await Votes.findOne({ image: optionId });
-        return vote(optionVotes, user, userId, res, next);
+        return vote(optionVotes, user, userId, res, flag, next);
       }
     });
   }
