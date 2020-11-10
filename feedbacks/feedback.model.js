@@ -13,8 +13,16 @@ const feedbackSchema = new Schema(
     },
     author: { type: mongoose.Schema.Types.ObjectId, ref: 'user' }
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true }
+  }
 );
+
+feedbackSchema.virtual('bodyLength').get(function () {
+  return this.body.length;
+});
 
 const Feedback = mongoose.model('Feedback', feedbackSchema);
 module.exports = Feedback;

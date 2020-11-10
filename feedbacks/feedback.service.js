@@ -64,11 +64,32 @@ exports.feedbackService = {
 
   getAll() {
     return catchAsync(async (req, res) => {
-      const feedbacks = await Feedback.find();
-      res.status(200).json({ status: 'success', data: feedbacks });
+      const queryObj = { ...req.query };
+      const excludesFields = ['sort', 'limit', 'page', 'fields'];
+      excludesFields.forEach(el => delete queryObj[el]);
+
+      let query = Feedback.find(queryObj);
+      if (req.query.sort) {
+        query = query.sort(req.query.sort);
+      }
+      const page = req.query.page * 1 || 1;
+      const limit = req.query.limit * 1 || 100;
+      const skip = (page - 1) * limit;
+      query = query.skip(skip).limit(limit);
+      if (req.query.page) {
+        const numFeedbacks = await Feedback.countDocuments();
+        if (skip >= numFeedbacks) throw Error('this page dosent exit');
+      }
+      const feedbacks = await query;
+
+      res.status(200).json({
+        status: 'success',
+        results: feedbacks.length,
+        data: feedbacks
+      });
     });
   },
-
+  getFeedbacksStats() {},
   getCategories() {
     return catchAsync(async (req, res) => {
       const categories = await Category.find();
