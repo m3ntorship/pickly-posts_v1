@@ -1,3 +1,4 @@
+const config = require('config');
 const dotenv = require('dotenv');
 const express = require('express');
 const { resolve } = require('path');
@@ -25,7 +26,9 @@ app.use(
     winstonInstance: logger,
     meta: false,
     msg: 'HTTP {{req.method}} {{req.url}}',
-    expressFormat: true
+    expressFormat: true,
+    blacklistedMetaFields: config.get('log_blacklisted_meta_fields'),
+    headerBlacklist: ['authorization', 'cookie']
   })
 );
 
@@ -48,7 +51,9 @@ app.use('/feedbacks', feedbackRouter);
 
 app.use(
   expressWinston.errorLogger({
-    winstonInstance: logger
+    winstonInstance: logger,
+    blacklistedMetaFields: config.get('log_blacklisted_meta_fields'),
+    headerBlacklist: ['authorization', 'cookie']
   })
 );
 
