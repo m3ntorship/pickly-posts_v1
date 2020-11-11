@@ -2,5 +2,8 @@
   "environment": "live",
   "pagination": {
     "default_page_count": 10
+  },
+  "feedback": {
+    "max_length": 500
   }
 }
