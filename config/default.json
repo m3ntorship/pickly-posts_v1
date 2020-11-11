@@ -2,5 +2,8 @@
   "environment": "default",
   "dev_mode": false,
   "log_rotation_limit": 100000000,
-  "log_blacklisted_meta_fields": ["trace"]
+  "log_blacklisted_meta_fields": ["trace"],
+  "feedback": {
+    "max_length": 500
+  }
 }
