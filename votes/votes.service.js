@@ -42,7 +42,7 @@ exports.voteService = {
       
       if (!optionVotes) {
         optionVotes = await Votes.create({
-          option: img._id,
+          image: img._id,
           postId: img.postId.toString()
         });
         img.votes = optionVotes._id;
