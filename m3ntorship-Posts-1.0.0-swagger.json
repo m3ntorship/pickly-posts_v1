@@ -17,7 +17,9 @@
   ],
   "security": [
     {
-      "firebaseAuth": []
+      "firebaseAuth": [
+
+      ]
     }
   ],
   "paths": {
@@ -68,7 +70,8 @@
         "tags": [
           "posts"
         ],
-        "summary": "get All posts for feed",
+        "summary": "get All posts for feed.\n",
+        "description": "posts owned by user are different\nfrom ones that aren't,\nposts owned by user will always have their votes.\nnon-owners only get votes when they have already voted.\n\nIn the example, both objects are shown.\n",
         "operationId": "getPosts",
         "responses": {
           "200": {
@@ -78,7 +81,17 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/Post"
+                    "type": "object",
+                    "properties": {
+                      "If-Post-Owner": {
+                        "type": "object",
+                        "$ref": "#/components/schemas/Post-Owner"
+                      },
+                      "If-Post-NotOwner": {
+                        "type": "object",
+                        "$ref": "#/components/schemas/Post-NotOwner"
+                      }
+                    }
                   }
                 }
               }
@@ -95,7 +108,8 @@
         "tags": [
           "posts"
         ],
-        "summary": "get Post by Id",
+        "summary": "get post by id.\n",
+        "description": "posts owned by user are different\nfrom ones that aren't,\nposts owned by user will always have their votes.\nnon-owners only get votes when they have already voted.\n\nIn the example, both objects are shown.\n",
         "operationId": "getPost",
         "parameters": [
           {
@@ -114,7 +128,17 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Post"
+                  "type": "object",
+                  "properties": {
+                    "If-Post-Owner": {
+                      "type": "object",
+                      "$ref": "#/components/schemas/Post-Owner"
+                    },
+                    "If-Post-NotOwner": {
+                      "type": "object",
+                      "$ref": "#/components/schemas/Post-NotOwner"
+                    }
+                  }
                 }
               }
             }
@@ -256,7 +280,7 @@
   },
   "components": {
     "schemas": {
-      "Post": {
+      "Post-Owner": {
         "type": "object",
         "required": [
           "caption",
@@ -268,7 +292,7 @@
             "type": "string"
           },
           "resources": {
-            "$ref": "#/components/schemas/Resource"
+            "$ref": "#/components/schemas/Resource-Owner"
           },
           "isAnonymous": {
             "type": "boolean"
@@ -276,27 +300,82 @@
           "author": {
             "$ref": "#/components/schemas/Author"
           },
-          "voted": {
-            "type": "boolean",
-            "default": false
-          },
           "ownedByCurrentUser": {
-            "type": "boolean"
+            "type": "boolean",
+            "example": true
           }
         }
       },
-      "Resource": {
+      "Post-NotOwner": {
+        "type": "object",
+        "required": [
+          "caption",
+          "resources",
+          "isAnonymous"
+        ],
+        "properties": {
+          "caption": {
+            "type": "string"
+          },
+          "resources": {
+            "$ref": "#/components/schemas/Resource-NotOwner"
+          },
+          "isAnonymous": {
+            "type": "boolean",
+            "example": false
+          },
+          "author": {
+            "$ref": "#/components/schemas/Author"
+          },
+          "voted": {
+            "type": "boolean"
+          },
+          "ownedByCurrentUser": {
+            "type": "boolean",
+            "example": false
+          }
+        }
+      },
+      "Resource-Owner": {
         "type": "object",
         "properties": {
           "images": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/Image"
+              "$ref": "#/components/schemas/Image-Owner"
             }
           }
         }
       },
-      "Image": {
+      "Resource-NotOwner": {
+        "type": "object",
+        "properties": {
+          "images": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Image-NotOwner"
+            }
+          }
+        }
+      },
+      "Image-Owner": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "provider": {
+            "type": "string"
+          },
+          "votes": {
+            "$ref": "#/components/schemas/Vote"
+          }
+        }
+      },
+      "Image-NotOwner": {
         "type": "object",
         "properties": {
           "name": {
