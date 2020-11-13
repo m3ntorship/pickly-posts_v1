@@ -37,7 +37,7 @@ exports.voteService = {
       let optionVotes = await Votes.findOne({ image: optionId });
 
       if(user.mongouser.posts.includes(img.postId)){
-        return next(new AppError('You cannot vote your own image', 400));
+        return next(new AppError('You cannot vote your own post', 400));
       }
 
       if (user.mongouser.isVoted(img.postId.toString())) {

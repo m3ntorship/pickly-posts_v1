@@ -42,8 +42,8 @@ const resourcesSchema = new mongoose.Schema(
   {
     toJSON: {
       transform: function (doc, ret) {
-        ret._id = undefined;
-        ret.__v = undefined;
+        delete ret._id;
+        delete ret.__v;
         return ret;
       }
     },

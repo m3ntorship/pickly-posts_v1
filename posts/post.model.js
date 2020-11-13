@@ -22,17 +22,17 @@ const postSchema = new mongoose.Schema(
     toJSON: {
       transform: function (doc, ret) {
         ret.author = ret.isAnonymous ? undefined : ret.author;
-        if(ret.ownedByCurrentUser){
-          ret.Voted = undefined
+        if (ret.ownedByCurrentUser) {
+          delete ret.Voted;
         }
         if (ret.Voted === false && ret.ownedByCurrentUser === false) {
           ret.resources.images = ret.resources.images.map(image => {
-            image.votes = undefined;
+            delete image.votes;
             return image;
           });
         }
-        ret.id = undefined;
-        ret.__v = undefined;
+        delete ret.id;
+        delete ret.__v;
         return ret;
       },
       virtuals: true
