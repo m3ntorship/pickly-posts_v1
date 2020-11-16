@@ -13,7 +13,7 @@ const userEnricher = async user => {
       name: user.tokeninfo.name,
       email: user.tokeninfo.email,
       userImage: user.tokeninfo.picture
-    });
+    }).sort('-createdAt');
   return mongoUser;
 };
 
@@ -31,7 +31,7 @@ const getPosts = opts => {
         select: 'count  updatedAt'
       }
     }
-  });
+  }).sort('-createdAt');
   return userPosts;
 };
 
