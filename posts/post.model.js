@@ -22,6 +22,7 @@ const postSchema = new mongoose.Schema(
     toJSON: {
       transform: function (doc, ret) {
         ret.author = ret.isAnonymous ? undefined : ret.author;
+        
         if (ret.resources.images && ret.resources.images.length > 1) {
           ret.resources.images = ret.resources.images.map(image => {
             image.upvotedByUser = undefined;
@@ -34,12 +35,12 @@ const postSchema = new mongoose.Schema(
         }
         if (ret.Voted === false) {
           ret.resources.images = ret.resources.images.map(image => {
-            image.votes = undefined;
+            delete image.votes;
             return image;
           });
         }
-        ret.id = undefined;
-        ret.__v = undefined;
+        delete ret.id;
+        delete ret.__v;
         return ret;
       },
       virtuals: true

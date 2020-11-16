@@ -48,6 +48,10 @@ exports.voteService = {
 
       let optionVotes = await Votes.findOne({ image: optionId });
 
+      if(user.mongouser.posts.includes(img.postId)){
+        return next(new AppError('You cannot vote your own post', 400));
+      }
+
       if (user.mongouser.isVoted(img.postId.toString())) {
         return next(new AppError('Already Voted', 400));
       }

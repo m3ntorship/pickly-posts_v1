@@ -32,7 +32,7 @@ const votesSchema = new mongoose.Schema(
   {
     toJSON: {
       transform: function (doc, ret) {
-        ret.__v = undefined;
+        delete ret.__v;
         return ret;
       }
     },
