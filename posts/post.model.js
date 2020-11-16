@@ -21,20 +21,20 @@ const postSchema = new mongoose.Schema(
   {
     toJSON: {
       transform: function (doc, ret) {
-        ret.author = ret.isAnonymous ? undefined : ret.author;
+        if (ret.isAnonymous) delete ret.author;
 
         if (ret.resources.images && ret.resources.images.length > 1) {
           ret.resources.images = ret.resources.images.map(image => {
-            image.upvotedByUser = undefined;
+            delete image.upvotedByUser;
             if (image.votes) {
-              image.votes.upvoteCount = undefined;
+              delete image.votes.upvoteCount;
             }
 
             return image;
           });
         }
         if (ret.ownedByCurrentUser) {
-          ret.Voted = undefined;
+          delete ret.Voted;
         }
         if (ret.Voted === false && ret.ownedByCurrentUser === false) {
           ret.resources.images = ret.resources.images.map(image => {
