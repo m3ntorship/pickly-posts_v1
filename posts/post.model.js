@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { Resources } = require('../images/image.model');
 
 const postSchema = new mongoose.Schema(
   {
@@ -21,14 +22,25 @@ const postSchema = new mongoose.Schema(
     toJSON: {
       transform: function (doc, ret) {
         ret.author = ret.isAnonymous ? undefined : ret.author;
-        if (ret.Voted === false) {
+        
+        if (ret.resources.images && ret.resources.images.length > 1) {
           ret.resources.images = ret.resources.images.map(image => {
-            image.votes = undefined;
+            image.upvotedByUser = undefined;
+            if (image.votes) {
+              image.votes.upvoteCount = undefined;
+            }
+
             return image;
           });
         }
-        ret.id = undefined;
-        ret.__v = undefined;
+        if (ret.Voted === false) {
+          ret.resources.images = ret.resources.images.map(image => {
+            delete image.votes;
+            return image;
+          });
+        }
+        delete ret.id;
+        delete ret.__v;
         return ret;
       },
       virtuals: true
@@ -38,6 +50,13 @@ const postSchema = new mongoose.Schema(
   }
 );
 
+postSchema.methods.setVoted = function (user) {
+  this.Voted = user.isVoted(this._id);
+};
+postSchema.pre('remove', async function () {
+  const resources = await Resources.findOne({ _id: this.resources });
+  resources.remove();
+});
 postSchema.virtual('Voted');
 postSchema.virtual('ownedByCurrentUser');
 

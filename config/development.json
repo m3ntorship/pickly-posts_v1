@@ -1,4 +1,10 @@
 {
   "environment": "development",
-  "dev_mode": true
+  "dev_mode": true,
+  "pagination": {
+    "default_page_count": 1000
+  },
+  "feedback": {
+    "max_length": 1000
+  }
 }

@@ -8,14 +8,22 @@ const votesSchema = new mongoose.Schema(
     },
     voters: [
       {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'user'
+        user: { type: mongoose.Schema.Types.ObjectId, ref: 'user' },
+        upvoted: {
+          type: Boolean,
+          default: false
+        }
       }
     ],
     count: {
       type: Number,
       default: 0
     },
+    upvoteCount: {
+      type: Number,
+      default: 0
+    },
+
     postId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Post'
@@ -24,7 +32,7 @@ const votesSchema = new mongoose.Schema(
   {
     toJSON: {
       transform: function (doc, ret) {
-        ret.__v = undefined;
+        delete ret.__v;
         return ret;
       }
     },

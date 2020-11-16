@@ -1,3 +1,6 @@
+const config = require('config');
+const maxLength = config.get('feedback.max_length');
+
 const schema = {
   type: 'object',
   properties: {
@@ -6,8 +9,7 @@ const schema = {
     },
     body: {
       type: 'string',
-      minLength: 50,
-      maxLength: 500
+      maxLength: maxLength
     }
   }
 };

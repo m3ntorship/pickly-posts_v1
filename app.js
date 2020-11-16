@@ -1,12 +1,13 @@
+const config = require('config');
 const dotenv = require('dotenv');
 const express = require('express');
 const { resolve } = require('path');
 const cors = require('cors');
-const winston = require('winston');
 const expressWinston = require('express-winston');
 const postRouter = require('./posts/post.routes');
 const imageRouter = require('./images/image.routes');
 const userRouter = require('./users/user.routes');
+const voteRouter = require('./votes/vote.routes');
 const feedbackRouter = require('./feedbacks/feedback.routes');
 const { protector } = require('./users/user.controller');
 const errorHandler = require('./middleware/errorhandler');
@@ -25,7 +26,9 @@ app.use(
     winstonInstance: logger,
     meta: false,
     msg: 'HTTP {{req.method}} {{req.url}}',
-    expressFormat: true
+    expressFormat: true,
+    blacklistedMetaFields: config.get('log_blacklisted_meta_fields'),
+    headerBlacklist: ['authorization', 'cookie']
   })
 );
 
@@ -41,7 +44,7 @@ app.use(protector);
 app.get('/protected', (req, res) => {
   res.json({ protected: true });
 });
-
+app.use('/votes', voteRouter);
 app.use('/posts', postRouter);
 app.use('/images', imageRouter);
 app.use('/users', userRouter);
@@ -49,7 +52,9 @@ app.use('/feedbacks', feedbackRouter);
 
 app.use(
   expressWinston.errorLogger({
-    winstonInstance: logger
+    winstonInstance: logger,
+    blacklistedMetaFields: config.get('log_blacklisted_meta_fields'),
+    headerBlacklist: ['authorization', 'cookie']
   })
 );
 

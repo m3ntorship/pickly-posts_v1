@@ -3,7 +3,8 @@ const { Image, Resources } = require('../images/image.model');
 const catchAsync = require('../util/catchAsync');
 const isTruthy = require('../util/isTruthy');
 const AppError = require('../util/appError');
-const Votes = require('../images/votes.model');
+const Votes = require('../votes/votes.model');
+const config = require('config');
 
 const getPopulatedPosts = id => {
   if (id) {
@@ -18,7 +19,7 @@ const getPopulatedPosts = id => {
           populate: {
             path: 'votes',
             model: 'Votes',
-            select: 'count  updatedAt'
+            select: 'count  updatedAt upvoteCount'
           }
         }
       })
@@ -35,7 +36,7 @@ const getPopulatedPosts = id => {
           populate: {
             path: 'votes',
             model: 'Votes',
-            select: 'count  updatedAt'
+            select: 'count  updatedAt upvoteCount'
           }
         }
       })
@@ -46,10 +47,15 @@ const isVotedByCurrUser = async (userId, post) => {
   for (const i in post.resources.images) {
     const userVotedImage = await Votes.findOne({
       image: post.resources.images[i]._id,
-      voters: { $in: userId }
-    }).select('image');
+      'voters.user': userId
+    });
     if (userVotedImage) {
+      const { upvoted } = userVotedImage.voters.find(voter => {
+        if (voter.user.toString() === userId.toString()) return voter;
+      });
+
       post.resources.images[i].votedByUser = true;
+      post.resources.images[i].upvotedByUser = upvoted;
       continue;
     }
   }
@@ -105,25 +111,25 @@ exports.postService = {
   },
   delete() {
     return catchAsync(async (req, res, next) => {
-      const query = await Post.findById(req.params.id);
-      if (query) {
-        if (query.author.toString() === req.user.mongouser._id.toString()) {
-          await Post.deleteOne({ _id: req.params.id });
-          return res.status(204).send();
-        }
+      const post = await Post.findById(req.params.id);
+
+      if (!post) return next(new AppError('cannot find doc with that id', 404));
+      if (!post.author.toString() === req.user.mongouser._id.toString())
         return next(new AppError("Only post's owner can delete it", 403));
-      }
-      return next(new AppError('cannot find doc with that id', 404));
+
+      post.remove();
+      res.status(204).send();
     });
   },
   getAll() {
     return catchAsync(async (req, res, next) => {
+      const pageCount = config.get('pagination.default_page_count');
       const user = req.user.mongouser;
       const { limit, page } = req.query;
       let posts = await getPopulatedPosts()
         .sort('-createdAt')
-        .limit(+limit || 10)
-        .skip((+limit || 10) * (+page - 1));
+        .limit(+limit || pageCount)
+        .skip((+limit || pageCount) * (+page - 1));
       posts = await Promise.all(
         posts.map(async post => {
           post = await isVotedByCurrUser(user._id, post);

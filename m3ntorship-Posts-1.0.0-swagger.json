@@ -17,24 +17,28 @@
   ],
   "security": [
     {
-      "firebaseAuth": []
+      "firebaseAuth": [
+
+      ]
     }
   ],
   "paths": {
     "/posts": {
       "post": {
-        "tags": ["posts"],
+        "tags": [
+          "posts"
+        ],
         "summary": "Create a new post",
         "operationId": "create",
         "responses": {
+          "201": {
+            "description": "Post Created Successfully"
+          },
           "400": {
             "description": "Bad request"
           },
           "401": {
             "$ref": "#/components/responses/UnauthorizedError"
-          },
-          "201": {
-            "description": "Post Created Successfully"
           }
         },
         "requestBody": {
@@ -63,8 +67,11 @@
         }
       },
       "get": {
-        "tags": ["posts"],
-        "summary": "get All posts for feed",
+        "tags": [
+          "posts"
+        ],
+        "summary": "get All posts for feed.\n",
+        "description": "posts owned by user are different\nfrom ones that aren't,\nposts owned by user will always have their votes.\nnon-owners only get votes when they have already voted.\n\nIn the example, both objects are shown.\n",
         "operationId": "getPosts",
         "responses": {
           "200": {
@@ -74,7 +81,17 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/Post"
+                    "type": "object",
+                    "properties": {
+                      "If-Post-Owner": {
+                        "type": "object",
+                        "$ref": "#/components/schemas/Post-Owner"
+                      },
+                      "If-Post-NotOwner": {
+                        "type": "object",
+                        "$ref": "#/components/schemas/Post-NotOwner"
+                      }
+                    }
                   }
                 }
               }
@@ -88,8 +105,11 @@
     },
     "/posts/{postId}": {
       "get": {
-        "tags": ["posts"],
-        "summary": "get Post by Id",
+        "tags": [
+          "posts"
+        ],
+        "summary": "get post by id.\n",
+        "description": "posts owned by user are different\nfrom ones that aren't,\nposts owned by user will always have their votes.\nnon-owners only get votes when they have already voted.\n\nIn the example, both objects are shown.\n",
         "operationId": "getPost",
         "parameters": [
           {
@@ -108,7 +128,17 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Post"
+                  "type": "object",
+                  "properties": {
+                    "If-Post-Owner": {
+                      "type": "object",
+                      "$ref": "#/components/schemas/Post-Owner"
+                    },
+                    "If-Post-NotOwner": {
+                      "type": "object",
+                      "$ref": "#/components/schemas/Post-NotOwner"
+                    }
+                  }
                 }
               }
             }
@@ -122,7 +152,9 @@
         }
       },
       "delete": {
-        "tags": ["posts"],
+        "tags": [
+          "posts"
+        ],
         "summary": "Deletes a post",
         "operationId": "delete",
         "parameters": [
@@ -137,32 +169,34 @@
           }
         ],
         "responses": {
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          },
           "204": {
             "description": "no content"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
           }
         }
       }
     },
     "/feedbacks": {
       "post": {
-        "tags": ["feedbacks"],
+        "tags": [
+          "feedbacks"
+        ],
         "summary": "Add a new feedback to the database",
         "operationId": "addFeedback",
         "responses": {
-          "400": {
-            "description": "Bad request"
-          },
-          "429": {
-            "description": "Too Many Requests"
-          },
           "201": {
             "description": "Created"
           },
+          "400": {
+            "description": "Bad request"
+          },
           "401": {
             "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "429": {
+            "description": "Too Many Requests"
           }
         },
         "requestBody": {
@@ -178,7 +212,9 @@
         }
       },
       "get": {
-        "tags": ["feedbacks"],
+        "tags": [
+          "feedbacks"
+        ],
         "summary": "get all feedbacks",
         "operationId": "getFeedbacks",
         "responses": {
@@ -208,19 +244,55 @@
           }
         }
       }
+    },
+    "/feedbacks/categories": {
+      "get": {
+        "tags": [
+          "feedbacks"
+        ],
+        "summary": "get all categories from database",
+        "operationId": "getCategories",
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Category"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
-      "Post": {
+      "Post-Owner": {
         "type": "object",
-        "required": ["caption", "resources", "isAnonymous"],
+        "required": [
+          "caption",
+          "resources",
+          "isAnonymous"
+        ],
         "properties": {
           "caption": {
             "type": "string"
           },
           "resources": {
-            "$ref": "#/components/schemas/Resource"
+            "$ref": "#/components/schemas/Resource-Owner"
           },
           "isAnonymous": {
             "type": "boolean"
@@ -228,27 +300,82 @@
           "author": {
             "$ref": "#/components/schemas/Author"
           },
-          "voted": {
-            "type": "boolean",
-            "default": false
-          },
           "ownedByCurrentUser": {
-            "type": "boolean"
+            "type": "boolean",
+            "example": true
           }
         }
       },
-      "Resource": {
+      "Post-NotOwner": {
+        "type": "object",
+        "required": [
+          "caption",
+          "resources",
+          "isAnonymous"
+        ],
+        "properties": {
+          "caption": {
+            "type": "string"
+          },
+          "resources": {
+            "$ref": "#/components/schemas/Resource-NotOwner"
+          },
+          "isAnonymous": {
+            "type": "boolean",
+            "example": false
+          },
+          "author": {
+            "$ref": "#/components/schemas/Author"
+          },
+          "voted": {
+            "type": "boolean"
+          },
+          "ownedByCurrentUser": {
+            "type": "boolean",
+            "example": false
+          }
+        }
+      },
+      "Resource-Owner": {
         "type": "object",
         "properties": {
           "images": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/Image"
+              "$ref": "#/components/schemas/Image-Owner"
             }
           }
         }
       },
-      "Image": {
+      "Resource-NotOwner": {
+        "type": "object",
+        "properties": {
+          "images": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Image-NotOwner"
+            }
+          }
+        }
+      },
+      "Image-Owner": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "provider": {
+            "type": "string"
+          },
+          "votes": {
+            "$ref": "#/components/schemas/Vote"
+          }
+        }
+      },
+      "Image-NotOwner": {
         "type": "object",
         "properties": {
           "name": {
@@ -293,12 +420,24 @@
         "properties": {
           "category": {
             "type": "string",
-            "enum": ["Front end", "Back end", "UI/UX"]
+            "enum": [
+              "Front end",
+              "Back end",
+              "UI/UX"
+            ]
           },
           "body": {
             "type": "string",
             "minLength": 50,
             "maxLength": 500
+          }
+        }
+      },
+      "Category": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
           }
         }
       }
