@@ -6,8 +6,7 @@ const userSchema = new mongoose.Schema(
     password: String,
     userImage: String,
     posts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Post' }],
-    votes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Votes' }],
-    googleId: String
+    votes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Votes' }]
   },
   {
     toJSON: {
