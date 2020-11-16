@@ -19,7 +19,7 @@ const getPopulatedPosts = id => {
           populate: {
             path: 'votes',
             model: 'Votes',
-            select: 'count  updatedAt'
+            select: 'count  updatedAt upvoteCount'
           }
         }
       })
@@ -36,7 +36,7 @@ const getPopulatedPosts = id => {
           populate: {
             path: 'votes',
             model: 'Votes',
-            select: 'count  updatedAt'
+            select: 'count  updatedAt upvoteCount'
           }
         }
       })
@@ -47,10 +47,15 @@ const isVotedByCurrUser = async (userId, post) => {
   for (const i in post.resources.images) {
     const userVotedImage = await Votes.findOne({
       image: post.resources.images[i]._id,
-      voters: { $in: userId }
-    }).select('image');
+      'voters.user': userId
+    });
     if (userVotedImage) {
+      const { upvoted } = userVotedImage.voters.find(voter => {
+        if (voter.user.toString() === userId.toString()) return voter;
+      });
+
       post.resources.images[i].votedByUser = true;
+      post.resources.images[i].upvotedByUser = upvoted;
       continue;
     }
   }
@@ -109,9 +114,8 @@ exports.postService = {
   delete() {
     return catchAsync(async (req, res, next) => {
       const post = await Post.findById(req.params.id);
-      
-      if (!post)
-        return next(new AppError('cannot find doc with that id', 404));
+
+      if (!post) return next(new AppError('cannot find doc with that id', 404));
       if (!post.author.toString() === req.user.mongouser._id.toString())
         return next(new AppError("Only post's owner can delete it", 403));
 
