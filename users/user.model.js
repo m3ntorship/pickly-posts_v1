@@ -5,7 +5,7 @@ const userSchema = new mongoose.Schema(
     email: String,
     password: String,
     userImage: String,
-    // posts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Post' }],
+    posts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Post' }],
     votes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Votes' }],
     googleId: String
   },
@@ -19,15 +19,6 @@ const userSchema = new mongoose.Schema(
     versionKey: false
   }
 );
-
-// userSchema.virtual('posts', {
-//   ref: 'Post',
-//   localField: '_id',
-//   foreignField: 'author'
-// });
-
-// userSchema.set('toObject', { virtuals: true });
-// userSchema.set('toJSON', { virtuals: true });
 
 userSchema.methods.upvote = function (id) {
   if (this.votes.indexOf(id) === -1) {
