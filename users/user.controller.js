@@ -1,3 +1,4 @@
 const { userService } = require('./user.service');
 
-exports.getUserPosts = userService.getPosts();
+exports.getUserPosts = userService.getUserPosts();
+exports.protector = userService.protector();
