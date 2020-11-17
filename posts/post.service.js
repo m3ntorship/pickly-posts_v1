@@ -47,13 +47,10 @@ const isVotedByCurrUser = async (userId, post) => {
   for (const i in post.resources.images) {
     const userVotedImage = await Votes.findOne({
       image: post.resources.images[i]._id,
-      'voters.user': userId
+      voters: userId
     });
     if (userVotedImage) {
-      const { upvoted } = userVotedImage.voters.find(voter => {
-        if (voter.user.toString() === userId.toString()) return voter;
-      });
-
+      const { upvoted } = userVotedImage.voters.includes(userId.toString());
       post.resources.images[i].votedByUser = true;
       post.resources.images[i].upvotedByUser = upvoted;
       continue;

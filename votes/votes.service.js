@@ -4,30 +4,23 @@ const AppError = require('../util/appError');
 const catchAsync = require('../util/catchAsync');
 
 const vote = async (optionVotes, user, userId, res, flag, next) => {
-  if (
-    !optionVotes.voters.some(vote => {
-      return vote.user.toString() === userId.toString();
-    })
-  ) {
-    if (flag && flag === 1) {
-      optionVotes.upvoteCount += 1;
-      optionVotes.voters.push({ user: userId.toString(), upvoted: true });
-    } else {
-      optionVotes.voters.push({ user: userId.toString() });
-    }
-
-    optionVotes.count += 1;
-
-    await user.mongouser.upvote(optionVotes.postId.toString());
-    await optionVotes.save();
-
-    return res.json({
-      votes: optionVotes.count,
-      upvotes: optionVotes.upvoteCount
-    });
+  if (flag && flag === 1) {
+    optionVotes.upvoteCount += 1;
+    optionVotes.voters.push(userId.toString());
+    optionVotes.upvoted = true;
   } else {
-    return next(new AppError('Already Voted', 400));
+    optionVotes.voters.push(userId.toString());
   }
+
+  optionVotes.count += 1;
+
+  await user.mongouser.upvote(optionVotes.postId.toString());
+  await optionVotes.save();
+
+  return res.status(200).json({
+    votes: optionVotes.count,
+    upvotes: optionVotes.upvoteCount
+  });
 };
 
 exports.voteService = {
@@ -48,7 +41,7 @@ exports.voteService = {
 
       let optionVotes = await Votes.findOne({ image: optionId });
 
-      if(user.mongouser.posts.includes(img.postId)){
+      if (user.mongouser.posts.includes(img.postId)) {
         return next(new AppError('You cannot vote your own post', 400));
       }
 

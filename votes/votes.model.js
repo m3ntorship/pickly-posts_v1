@@ -8,13 +8,14 @@ const votesSchema = new mongoose.Schema(
     },
     voters: [
       {
-        user: { type: mongoose.Schema.Types.ObjectId, ref: 'user' },
-        upvoted: {
-          type: Boolean,
-          default: false
-        }
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'user'
       }
     ],
+    upvoted: {
+      type: Boolean,
+      default: false
+    },
     count: {
       type: Number,
       default: 0
@@ -23,7 +24,6 @@ const votesSchema = new mongoose.Schema(
       type: Number,
       default: 0
     },
-
     postId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Post'
