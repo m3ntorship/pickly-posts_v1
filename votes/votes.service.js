@@ -6,9 +6,10 @@ const catchAsync = require('../util/catchAsync');
 const vote = async (optionVotes, user, userId, res, flag, next) => {
   if (flag && flag === 1) {
     optionVotes.upvoteCount += 1;
-    optionVotes.voters.push({ user: userId.toString(), upvoted: true });
+    optionVotes.voters.push(userId.toString());
+    optionVotes.upvoted = true;
   } else {
-    optionVotes.voters.push({ user: userId.toString() });
+    optionVotes.voters.push(userId.toString());
   }
 
   optionVotes.count += 1;
