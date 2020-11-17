@@ -50,9 +50,9 @@ const isVotedByCurrUser = async (userId, post) => {
       voters: userId
     });
     if (userVotedImage) {
-      const { upvoted } = userVotedImage.voters.includes(userId.toString());
-      post.resources.images[i].votedByUser = true;
+      const upvoted = userVotedImage.upvoters.includes(userId);
       post.resources.images[i].upvotedByUser = upvoted;
+      post.resources.images[i].votedByUser = true;
       continue;
     }
   }

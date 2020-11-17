@@ -12,10 +12,12 @@ const votesSchema = new mongoose.Schema(
         ref: 'user'
       }
     ],
-    upvoted: {
-      type: Boolean,
-      default: false
-    },
+    upvoters: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'user'
+      }
+    ],
     count: {
       type: Number,
       default: 0

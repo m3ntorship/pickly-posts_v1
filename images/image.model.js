@@ -28,6 +28,7 @@ const imageSchema = new mongoose.Schema(
 
 imageSchema.virtual('votedByUser');
 imageSchema.virtual('upvotedByUser');
+imageSchema.virtual('upvotedByUser');
 
 const Image = mongoose.model('image', imageSchema);
 
