@@ -101,6 +101,8 @@ exports.postService = {
     return catchAsync(async (req, res, next) => {
       const user = req.user.mongouser;
       let post = await getPopulatedPosts(req.params.id);
+      if (!post)
+        return next(new AppError('cannot find post with this id', 404));
       post = await isVotedByCurrUser(user._id, post);
       post.Voted = user.isVoted(post._id);
       post.ownedByCurrentUser =
