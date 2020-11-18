@@ -29,7 +29,6 @@ const postSchema = new mongoose.Schema(
             if (image.votes) {
               delete image.votes.upvoteCount;
             }
-
             return image;
           });
         }

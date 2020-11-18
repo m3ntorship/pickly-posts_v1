@@ -18,20 +18,23 @@ const userEnricher = async user => {
 };
 
 const getPosts = opts => {
-  const userPosts = Post.find(opts).populate({
-    path: 'resources',
-    model: 'resources',
-    populate: {
-      path: 'images',
-      model: 'image',
-      select: 'name url',
+  const userPosts = Post.find(opts)
+    .populate({
+      path: 'resources',
+      model: 'resources',
       populate: {
-        path: 'votes',
-        model: 'Votes',
-        select: 'count  updatedAt'
+        path: 'images',
+        model: 'image',
+        select: 'name url',
+        populate: {
+          path: 'votes',
+          model: 'Votes',
+          select: 'count updatedAt'
+        }
       }
-    }
-  }).sort('-createdAt');
+    })
+    .populate('author', 'name email userImage')
+    .sort('-createdAt');
   return userPosts;
 };
 
