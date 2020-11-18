@@ -84,8 +84,9 @@ exports.postService = {
         author: user._id,
         isAnonymous: isAnonymousBoolean
       });
-      req.user.mongouser.posts.push(post._id);
-      await req.user.mongouser.save();
+      
+      user.posts.push(post._id);
+      user.save();
 
       images.forEach(async img => {
         img.postId = post._id;

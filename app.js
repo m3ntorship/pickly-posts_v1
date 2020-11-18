@@ -3,13 +3,13 @@ const dotenv = require('dotenv');
 const express = require('express');
 const { resolve } = require('path');
 const cors = require('cors');
-const winston = require('winston');
 const expressWinston = require('express-winston');
 const postRouter = require('./posts/post.routes');
 const imageRouter = require('./images/image.routes');
+const userRouter = require('./users/user.routes');
 const voteRouter = require('./votes/vote.routes');
 const feedbackRouter = require('./feedbacks/feedback.routes');
-const { protector } = require('./auth/auth.controller');
+const { protector } = require('./users/user.controller');
 const errorHandler = require('./middleware/errorhandler');
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./m3ntorship-Posts-1.0.0-swagger.json');
@@ -47,6 +47,7 @@ app.get('/protected', (req, res) => {
 app.use('/votes', voteRouter);
 app.use('/posts', postRouter);
 app.use('/images', imageRouter);
+app.use('/users', userRouter);
 app.use('/feedbacks', feedbackRouter);
 
 app.use(
