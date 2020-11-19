@@ -8,7 +8,15 @@
   "tags": [
     {
       "name": "posts",
-      "description": "Posts end point"
+      "description": "Posts endpoints"
+    },
+    {
+      "name": "users",
+      "description": "users endpoint"
+    },
+    {
+      "name": "votes",
+      "description": "voting endpoint"
     },
     {
       "name": "feedbacks",
@@ -17,9 +25,7 @@
   ],
   "security": [
     {
-      "firebaseAuth": [
-
-      ]
+      "firebaseAuth": []
     }
   ],
   "paths": {
@@ -70,8 +76,26 @@
         "tags": [
           "posts"
         ],
-        "summary": "get All posts for feed.\n",
+        "summary": "get All posts for feed.",
         "description": "posts owned by user are different\nfrom ones that aren't,\nposts owned by user will always have their votes.\nnon-owners only get votes when they have already voted.\n\nIn the example, both objects are shown.\n",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "posts per page",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "page number",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
         "operationId": "getPosts",
         "responses": {
           "200": {
@@ -115,7 +139,7 @@
           {
             "name": "postId",
             "in": "path",
-            "description": "get a single post by its Id",
+            "description": "Get a single post by its Id",
             "required": true,
             "schema": {
               "type": "string"
@@ -161,7 +185,7 @@
           {
             "name": "postId",
             "in": "path",
-            "description": "Pet id to delete",
+            "description": "Post id to delete",
             "required": true,
             "schema": {
               "type": "string"
@@ -171,6 +195,172 @@
         "responses": {
           "204": {
             "description": "no content"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "posts"
+        ],
+        "summary": "Report a post",
+        "operationId": "patch",
+        "parameters": [
+          {
+            "name": "postId",
+            "in": "path",
+            "description": "Post id to report",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "reporterId": {
+                    "type": "string",
+                    "example": "2c4dfdsfsdf567ygsdffse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Reported successfully"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "404": {
+            "description": "Not Found Error"
+          }
+        }
+      }
+    },
+    "/users/{userId}/posts": {
+      "get": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Get posts by a certain user",
+        "operationId": "getUserPosts",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "get all posts of user by user id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        }
+      }
+    },
+    "/votes/{imageId}": {
+      "post": {
+        "tags": [
+          "votes"
+        ],
+        "summary": "vote / upvote / downvote an option",
+        "description": "vote / upvote / downvote an option",
+        "operationId": "vote",
+        "parameters": [
+          {
+            "name": "imageId",
+            "in": "path",
+            "description": "vote / upvote / downvote an option",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "flag": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "vote was successfully made",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "votes": {
+                      "type": "integer",
+                      "example": 12
+                    },
+                    "upvotes": {
+                      "type": "integer",
+                      "example": 9
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "user has already voted in this post\nor a user is trying to upvote his own post\n",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "If-Already-Voted": {
+                      "type": "object",
+                      "properties": {
+                        "success": {
+                          "example": false
+                        },
+                        "error": {
+                          "example": "Already Voted"
+                        }
+                      }
+                    },
+                    "If-OwnedByCurrentUser": {
+                      "type": "object",
+                      "properties": {
+                        "success": {
+                          "example": false
+                        },
+                        "error": {
+                          "example": "You cannot vote your own post"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
           },
           "401": {
             "$ref": "#/components/responses/UnauthorizedError"
@@ -215,7 +405,7 @@
         "tags": [
           "feedbacks"
         ],
-        "summary": "get all feedbacks",
+        "summary": "Get all feedbacks",
         "operationId": "getFeedbacks",
         "responses": {
           "200": {
@@ -250,7 +440,7 @@
         "tags": [
           "feedbacks"
         ],
-        "summary": "get all categories from database",
+        "summary": "Get all categories from database",
         "operationId": "getCategories",
         "responses": {
           "200": {
