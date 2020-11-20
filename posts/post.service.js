@@ -84,7 +84,7 @@ exports.postService = {
         author: user._id,
         isAnonymous: isAnonymousBoolean
       });
-      
+
       user.posts.push(post._id);
       user.save();
 
@@ -140,6 +140,26 @@ exports.postService = {
         })
       );
       res.status(200).json({ status: 'success', data: posts });
+    });
+  },
+  patch() {
+    return catchAsync(async (req, res, next) => {
+      const post = await Post.findById(req.params.id);
+
+      if (!post) return next(new AppError('cannot find doc with that id', 404));
+      if (post.author.toString() === req.user.mongouser._id.toString())
+        return next(new AppError("User can't report his post", 403));
+
+      let reports = post.body.reports;
+      reports = reports + 1;
+      const updatedPost = await Post.findByIdAndUpdate(
+        req.params.id,
+        {
+          reports: reports
+        },
+        { new: true }
+      );
+      console.log(updatedPost);
     });
   }
 };
