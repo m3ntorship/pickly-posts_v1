@@ -157,7 +157,7 @@ exports.postService = {
         {
           reports: reports
         },
-        { new: true }
+        { new: false }
       );
       console.log(updatedPost);
     });
