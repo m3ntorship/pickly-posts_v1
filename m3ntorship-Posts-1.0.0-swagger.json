@@ -25,9 +25,7 @@
   ],
   "security": [
     {
-      "firebaseAuth": [
-
-      ]
+      "firebaseAuth": []
     }
   ],
   "paths": {
@@ -223,8 +221,59 @@
           }
         ],
         "responses": {
-          "201": {
-            "description": "Post Created Successfully"
+          "200": {
+            "description": "success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "If-Post-Owner": {
+                        "type": "object",
+                        "$ref": "#/components/schemas/Post-Owner"
+                      },
+                      "If-Post-NotOwner": {
+                        "type": "object",
+                        "$ref": "#/components/schemas/Post-NotOwner"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        }
+      }
+    },
+    "/users/posts": {
+      "get": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Get posts of user on the user token (current user)",
+        "operationId": "getUserOwnPosts",
+        "responses": {
+          "200": {
+            "description": "success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "$ref": "#/components/schemas/Post-Owner"
+                  }
+                }
+              }
+            }
           },
           "400": {
             "description": "Bad request"
