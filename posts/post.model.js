@@ -34,6 +34,9 @@ const postSchema = new mongoose.Schema(
             return image;
           });
         }
+        if (ret.ownedByCurrentUser) {
+          delete ret.Voted;
+        }
         if (ret.Voted === false && ret.ownedByCurrentUser === false) {
           ret.resources.images = ret.resources.images.map(image => {
             delete image.votes;
