@@ -13,7 +13,7 @@ const userEnricher = async user => {
       name: user.tokeninfo.name,
       email: user.tokeninfo.email,
       userImage: user.tokeninfo.picture
-    }).sort('-createdAt');
+    });
   return mongoUser;
 };
 
