@@ -236,7 +236,7 @@
       }
     },
     "/votes/{imageId}": {
-      "post": {
+      "put": {
         "tags": [
           "votes"
         ],
