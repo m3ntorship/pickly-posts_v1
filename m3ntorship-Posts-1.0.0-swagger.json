@@ -8,7 +8,15 @@
   "tags": [
     {
       "name": "posts",
-      "description": "Posts end point"
+      "description": "Posts endpoints"
+    },
+    {
+      "name": "users",
+      "description": "users endpoint"
+    },
+    {
+      "name": "votes",
+      "description": "voting endpoint"
     },
     {
       "name": "feedbacks",
@@ -70,8 +78,26 @@
         "tags": [
           "posts"
         ],
-        "summary": "get All posts for feed.\n",
+        "summary": "get All posts for feed.",
         "description": "posts owned by user are different\nfrom ones that aren't,\nposts owned by user will always have their votes.\nnon-owners only get votes when they have already voted.\n\nIn the example, both objects are shown.\n",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "posts per page",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "page number",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
         "operationId": "getPosts",
         "responses": {
           "200": {
@@ -171,6 +197,131 @@
         "responses": {
           "204": {
             "description": "no content"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        }
+      }
+    },
+    "/users/{userId}/posts": {
+      "get": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Get posts by a certain user",
+        "operationId": "getUserPosts",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "get all posts of user by user id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Post Created Successfully"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        }
+      }
+    },
+    "/votes/{imageId}": {
+      "post": {
+        "tags": [
+          "votes"
+        ],
+        "summary": "vote / upvote / downvote an option",
+        "description": "vote / upvote / downvote an option",
+        "operationId": "vote",
+        "parameters": [
+          {
+            "name": "imageId",
+            "in": "path",
+            "description": "vote / upvote / downvote an option",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "flag": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "vote was successfully made",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "votes": {
+                      "type": "integer",
+                      "example": 12
+                    },
+                    "upvotes": {
+                      "type": "integer",
+                      "example": 9
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "user has already voted in this post\nor a user is trying to upvote his own post\n",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "If-Already-Voted": {
+                      "type": "object",
+                      "properties": {
+                        "success": {
+                          "example": false
+                        },
+                        "error": {
+                          "example": "Already Voted"
+                        }
+                      }
+                    },
+                    "If-OwnedByCurrentUser": {
+                      "type": "object",
+                      "properties": {
+                        "success": {
+                          "example": false
+                        },
+                        "error": {
+                          "example": "You cannot vote your own post"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
           },
           "401": {
             "$ref": "#/components/responses/UnauthorizedError"
