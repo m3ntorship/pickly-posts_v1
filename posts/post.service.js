@@ -50,9 +50,9 @@ const isVotedByCurrUser = async (userId, post) => {
       voters: userId
     });
     if (userVotedImage) {
-      const { upvoted } = userVotedImage.voters.includes(userId.toString());
-      post.resources.images[i].votedByUser = true;
+      const upvoted = userVotedImage.upvoters.includes(userId);
       post.resources.images[i].upvotedByUser = upvoted;
+      post.resources.images[i].votedByUser = true;
       continue;
     }
   }
@@ -102,6 +102,8 @@ exports.postService = {
     return catchAsync(async (req, res, next) => {
       const user = req.user.mongouser;
       let post = await getPopulatedPosts(req.params.id);
+      if (!post)
+        return next(new AppError('cannot find post with this id', 404));
       post = await isVotedByCurrUser(user._id, post);
       post.Voted = user.isVoted(post._id);
       post.ownedByCurrentUser =
