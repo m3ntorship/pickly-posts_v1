@@ -141,26 +141,5 @@ exports.postService = {
       );
       res.status(200).json({ status: 'success', data: posts });
     });
-  },
-  patch() {
-    return catchAsync(async (req, res, next) => {
-      const post = await Post.findById(req.params.id);
-      console.log(post);
-      if (!post) return next(new AppError('cannot find doc with that id', 404));
-      if (post.author.toString() === req.user.mongouser._id.toString())
-        return next(new AppError("User can't report his post", 403));
-
-      let reports = post.reports;
-      reports = reports + 1;
-
-      const updatedPost = await Post.findByIdAndUpdate(
-        req.params.id,
-        {
-          reports: reports + 1
-        },
-        { new: false }
-      );
-      res.status(200).json({ status: 'success', data: updatedPost });
-    });
   }
 };

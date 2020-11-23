@@ -16,11 +16,7 @@ const postSchema = new mongoose.Schema(
       type: Boolean,
       default: false
     },
-    author: { type: mongoose.Schema.Types.ObjectId, ref: 'user' },
-    reports: {
-      type: Number,
-      default: 0
-    }
+    author: { type: mongoose.Schema.Types.ObjectId, ref: 'user' }
   },
   {
     toJSON: {
