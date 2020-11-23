@@ -6,13 +6,10 @@ const catchAsync = require('../util/catchAsync');
 const vote = async (optionVotes, user, userId, res, flag, next) => {
   if (flag && flag === 1) {
     optionVotes.upvoteCount += 1;
-    optionVotes.voters.push(userId.toString());
-    optionVotes.upvoted = true;
-  } else {
-    optionVotes.voters.push(userId.toString());
+    optionVotes.upvoters.push(userId.toString());
   }
-
   optionVotes.count += 1;
+  optionVotes.voters.push(userId.toString());
 
   await user.mongouser.upvote(optionVotes.postId.toString());
   await optionVotes.save();

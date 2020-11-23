@@ -221,6 +221,9 @@
           }
         ],
         "responses": {
+          "201": {
+            "description": "Post Created Successfully"
+          },
           "400": {
             "description": "Bad request"
           },
