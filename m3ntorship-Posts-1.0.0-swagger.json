@@ -221,9 +221,6 @@
           }
         ],
         "responses": {
-          "201": {
-            "description": "Post Created Successfully"
-          },
           "400": {
             "description": "Bad request"
           },
@@ -435,7 +432,24 @@
         "operationId": "postReport",
         "responses": {
           "201": {
-            "description": "Created"
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "object",
+                      "$ref": "#/components/schemas/Report"
+                    }
+                  }
+                }
+              }
+            }
           },
           "400": {
             "description": "Bad request"
@@ -444,7 +458,24 @@
             "$ref": "#/components/responses/UnauthorizedError"
           },
           "403": {
-            "description": "Forbidden"
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "fail"
+                    },
+                    "error": {
+                      "type": "string",
+                      "example": "User can't report his post"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "requestBody": {
@@ -627,13 +658,17 @@
       "Report": {
         "type": "object",
         "properties": {
-          "postId": {
+          "resourceId": {
             "type": "string",
             "example": "5fb9340dabba0c7e62f619a4"
           },
           "reporterId": {
             "type": "string",
             "example": "5fb9340dabba0c7e62f619a4"
+          },
+          "type": {
+            "type": "string",
+            "example": "post"
           }
         }
       }
