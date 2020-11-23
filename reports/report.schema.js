@@ -1,10 +1,13 @@
 const schema = {
   type: 'object',
   properties: {
-    postId: {
+    resourceId: {
       type: 'string'
     },
     reporterId: {
+      type: 'string'
+    },
+    type: {
       type: 'string'
     }
   }

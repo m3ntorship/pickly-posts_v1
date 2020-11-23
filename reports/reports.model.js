@@ -1,13 +1,17 @@
 const mongoose = require('mongoose');
-const schema = mongoose.schema;
+const Schema = mongoose.Schema;
 
-const reprtScheam = new schema(
+const reprtSchema = new Schema(
   {
-    postId: {
+    resourceId: {
       type: String,
       required: true
     },
     reporterId: {
+      type: String,
+      required: true
+    },
+    type: {
       type: String,
       required: true
     }
@@ -15,5 +19,5 @@ const reprtScheam = new schema(
   { timestamps: true }
 );
 
-const Report = mongoose.model('Report', reprtScheam);
+const Report = mongoose.model('Report', reprtSchema);
 module.exports = Report;
