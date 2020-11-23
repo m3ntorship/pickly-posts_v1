@@ -22,7 +22,9 @@ const postSchema = new mongoose.Schema(
     toJSON: {
       transform: function (doc, ret) {
         if (ret.isAnonymous) delete ret.author;
-
+        if (ret.ownedByCurrentUser) {
+          delete ret.Voted;
+        }
         if (ret.resources.images && ret.resources.images.length > 1) {
           ret.resources.images = ret.resources.images.map(image => {
             delete image.upvotedByUser;
