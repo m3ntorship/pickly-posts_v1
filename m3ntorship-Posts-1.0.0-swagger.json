@@ -25,9 +25,7 @@
   ],
   "security": [
     {
-      "firebaseAuth": [
-
-      ]
+      "firebaseAuth": []
     }
   ],
   "paths": {
@@ -141,7 +139,7 @@
           {
             "name": "postId",
             "in": "path",
-            "description": "get a single post by its Id",
+            "description": "Get a single post by its Id",
             "required": true,
             "schema": {
               "type": "string"
@@ -187,7 +185,7 @@
           {
             "name": "postId",
             "in": "path",
-            "description": "Pet id to delete",
+            "description": "Post id to delete",
             "required": true,
             "schema": {
               "type": "string"
@@ -223,9 +221,6 @@
           }
         ],
         "responses": {
-          "201": {
-            "description": "Post Created Successfully"
-          },
           "400": {
             "description": "Bad request"
           },
@@ -366,7 +361,7 @@
         "tags": [
           "feedbacks"
         ],
-        "summary": "get all feedbacks",
+        "summary": "Get all feedbacks",
         "operationId": "getFeedbacks",
         "responses": {
           "200": {
@@ -401,7 +396,7 @@
         "tags": [
           "feedbacks"
         ],
-        "summary": "get all categories from database",
+        "summary": "Get all categories from database",
         "operationId": "getCategories",
         "responses": {
           "200": {
@@ -425,6 +420,74 @@
               }
             }
           }
+        }
+      }
+    },
+    "/reports": {
+      "post": {
+        "tags": [
+          "reports"
+        ],
+        "summary": "send report for post",
+        "operationId": "postReport",
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "object",
+                      "$ref": "#/components/schemas/Report"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "fail"
+                    },
+                    "error": {
+                      "type": "string",
+                      "example": "User can't report his post"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Report"
+              }
+            }
+          },
+          "description": "Updated user object",
+          "required": true
         }
       }
     }
@@ -589,6 +652,23 @@
         "properties": {
           "title": {
             "type": "string"
+          }
+        }
+      },
+      "Report": {
+        "type": "object",
+        "properties": {
+          "resourceId": {
+            "type": "string",
+            "example": "5fb9340dabba0c7e62f619a4"
+          },
+          "reporterId": {
+            "type": "string",
+            "example": "5fb9340dabba0c7e62f619a4"
+          },
+          "type": {
+            "type": "string",
+            "example": "post"
           }
         }
       }
