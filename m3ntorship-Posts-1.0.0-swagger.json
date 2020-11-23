@@ -200,50 +200,6 @@
             "$ref": "#/components/responses/UnauthorizedError"
           }
         }
-      },
-      "patch": {
-        "tags": [
-          "posts"
-        ],
-        "summary": "Report a post",
-        "operationId": "patch",
-        "parameters": [
-          {
-            "name": "postId",
-            "in": "path",
-            "description": "Post id to report",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "reporterId": {
-                    "type": "string",
-                    "example": "2c4dfdsfsdf567ygsdffse"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Reported successfully"
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          },
-          "404": {
-            "description": "Not Found Error"
-          }
-        }
       }
     },
     "/users/{userId}/posts": {
@@ -466,6 +422,40 @@
           }
         }
       }
+    },
+    "/reports": {
+      "post": {
+        "tags": [
+          "reports"
+        ],
+        "summary": "send report for post",
+        "operationId": "postReport",
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Report"
+              }
+            }
+          },
+          "description": "Updated user object",
+          "required": true
+        }
+      }
     }
   },
   "components": {
@@ -628,6 +618,19 @@
         "properties": {
           "title": {
             "type": "string"
+          }
+        }
+      },
+      "Report": {
+        "type": "object",
+        "properties": {
+          "postId": {
+            "type": "string",
+            "example": "5fb9340dabba0c7e62f619a4"
+          },
+          "reporterId": {
+            "type": "string",
+            "example": "5fb9340dabba0c7e62f619a4"
           }
         }
       }
