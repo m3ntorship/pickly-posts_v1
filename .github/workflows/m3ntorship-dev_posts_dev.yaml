@@ -1,11 +1,10 @@
-name: deploy posts service PR to playground cluster
+name: deploy posts service PR to m3ntorship-dev cluster
 
 # trigger
 on:
   push:
     branches:
       - develop
-      - playground-deployment-posts
 env:
   # COMMON deployment envs
   M3_ORGANIZATION: ${{github.event.organization.login}}
@@ -85,7 +84,7 @@ jobs:
       - name: Kubectl configuration
         run: |
           mkdir -p ~/.kube
-          echo ${{ secrets.KUBE_CONFIG }} | base64 -d -i > ~/.kube/config
+          echo "${{ secrets.KUBE_CONFIG_DEV }}" | base64 -d -i > ~/.kube/config
       - name: install moustache
         run: |
           curl -sSL https://git.io/get-mo -o mo
