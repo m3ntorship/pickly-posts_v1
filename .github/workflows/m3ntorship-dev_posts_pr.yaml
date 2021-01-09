@@ -1,4 +1,4 @@
-name: deploy posts service PR to playground cluster
+name: deploy posts service PR to m3ntorship-dev cluster
 
 # trigger
 on:
@@ -118,7 +118,7 @@ jobs:
       - name: Kubectl configuration
         run: |
           mkdir -p ~/.kube
-          echo ${{ secrets.KUBE_CONFIG }} | base64 -d -i > ~/.kube/config
+          echo "${{ secrets.KUBE_CONFIG_DEV }}" | base64 -d -i > ~/.kube/config
       # undeploy pr
       - name: undeploy-pr
         run: kubectl delete namespace $M3_NAMESPACE --ignore-not-found
